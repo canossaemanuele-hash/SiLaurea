@@ -60,41 +60,43 @@
         .vote-btn { background: white; border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: 600; color: var(--text-main); margin-top: 10px; display: inline-block; }
         .vote-btn:hover { background: #eaf2f8; border-color: var(--primary); color: var(--primary); }
 
-        /* LAVAGNA INTERATTIVA (DRAG & DROP) OTTIMIZZATA */
+        /* LAVAGNA INTERATTIVA: RISTRUTTURAZIONE TOTALE */
         .toolbar-anteprima { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
         .btn-tool { padding: 8px 15px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
         .cartellone-wrapper { position: relative; width: 100%; background: white; border: 2px solid #333; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); aspect-ratio: 70 / 100; overflow: hidden; font-family: 'Times New Roman', serif; background-image: radial-gradient(#eee 1px, transparent 1px); background-size: 20px 20px; touch-action: none; }
         
-        /* Box Trascina: rimossi margini/padding superflui */
-        .drag-box { position: absolute; background: transparent; border: 1px dashed #3498db; display: flex; flex-direction: column; min-width: 60px; min-height: 40px; box-shadow: none; }
-        .drag-box:hover { border-color: var(--primary); z-index: 100; background: rgba(255,255,255,0.8); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* Box Trascina (Nessun padding, zero margini vuoti) */
+        .drag-box { position: absolute; background: transparent; border: 2px dashed #3498db; display: flex; flex-direction: column; min-width: 50px; box-sizing: border-box; }
+        .drag-box:hover { z-index: 100; background: rgba(255,255,255,0.7); }
         
-        .drag-handle { background: #f1f2f6; padding: 5px; font-size: 10px; font-family: sans-serif; color: #747d8c; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; cursor: move; touch-action: none; }
-        .drag-handle button { background: none; border: none; color: #ff4757; cursor: pointer; font-weight: bold; font-size: 12px; padding: 0 5px; }
+        .drag-handle { background: #3498db; padding: 4px; font-size: 11px; font-family: sans-serif; color: white; display: flex; justify-content: space-between; align-items: center; cursor: move; touch-action: none; }
+        .drag-handle button { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 5px; }
         
-        .drag-content { padding: 0px; flex: 1; overflow: hidden; outline: none; display: flex; align-items: center; justify-content: center; }
-        .drag-content[contenteditable="true"]:focus { background: rgba(255, 253, 231, 0.8); }
+        /* Content impostato per "Incollarsi" al top-left */
+        .drag-content { position: relative; flex: 1; overflow: hidden; outline: none; background: transparent; }
+        .drag-content[contenteditable="true"]:focus { background: rgba(255, 253, 231, 0.9); }
         
-        /* Sistema Zoom Perfetto */
-        .zoom-fit { display: flex; align-items: center; justify-content: center; transform-origin: center center; width: max-content; height: max-content; }
+        /* Il div interno che subisce la trasformazione Scale */
+        .zoom-fit { position: absolute; top: 0; left: 0; transform-origin: top left; width: max-content; height: max-content; }
         
-        /* Elementi clonati nel cartellone senza bordi grigi o padding */
-        .drag-content .cw-clues-col { padding: 0 !important; background: transparent !important; border: none !important; min-width: auto !important; font-size: 14px; }
-        .drag-content .cw-grid { border: 2px solid #000; margin: 0; }
-        .drag-content .cw-cell { width: 35px; height: 35px; font-size: 18px; }
-        .drag-content .cw-empty { width: 35px; height: 35px; }
+        /* Elementi base con dimensioni definite, che verranno scalati */
+        .cart-titolo-txt { font-size: 45px; text-align: center; color: #c0392b; font-weight: bold; text-transform: uppercase; line-height: 1; margin: 0; white-space: nowrap; padding: 5px; }
+        .cart-papiro-txt { font-size: 18px; text-align: justify; width: 400px; padding: 10px; box-sizing: border-box; }
+        .cart-caricatura-ph { width: 300px; height: 400px; border: 3px dashed #bdc3c7; display: flex; align-items: center; justify-content: center; color: #7f8c8d; background: #f9f9f9; text-align: center; font-size: 24px; box-sizing: border-box; }
+        
+        /* Modifiche al volo per gli elementi estratti e incollati sulla lavagna */
+        .drag-content .cw-grid { border: 2px solid #000; margin: 0; background: white; }
+        .drag-content .cw-cell { width: 40px; height: 40px; font-size: 20px; }
+        .drag-content .cw-empty { width: 40px; height: 40px; }
+        .drag-content .cw-clues-col { padding: 0; background: transparent; border: none; font-size: 16px; margin: 0 20px 0 0;}
 
-        .cart-titolo-txt { font-size: 35px; text-align: center; color: #c0392b; font-weight: bold; text-transform: uppercase; line-height: 1; margin: 0; width: 100%; word-wrap: break-word; }
-        .cart-papiro-txt { font-size: 16px; text-align: justify; width: 100%; word-wrap: break-word; }
-        .cart-caricatura-ph { width: 300px; height: 400px; border: 2px dashed #bdc3c7; display: flex; align-items: center; justify-content: center; color: #7f8c8d; background: #f9f9f9; text-align: center; font-size: 20px; }
+        /* MANIGLIA RESIZE IN BASSO A DESTRA */
+        .resize-handle { position: absolute; bottom: -2px; right: -2px; width: 30px; height: 30px; background: linear-gradient(135deg, transparent 50%, var(--primary) 50%); cursor: nwse-resize; z-index: 10; touch-action: none; border-bottom-right-radius: 4px; }
 
-        /* MANIGLIETTA RESIZE PER MOBILE */
-        .resize-handle { position: absolute; bottom: -2px; right: -2px; width: 25px; height: 25px; background: linear-gradient(135deg, transparent 50%, var(--primary) 50%); cursor: nwse-resize; z-index: 10; touch-action: none; border-bottom-right-radius: 4px; }
-
-        /* MODALITÀ PREVIEW STAMPA */
+        /* MODALITÀ STAMPA */
         .stampa-mode .drag-handle, .stampa-mode .resize-handle { display: none !important; }
-        .stampa-mode .drag-box { border: none !important; box-shadow: none !important; background: transparent !important; }
+        .stampa-mode .drag-box { border: none !important; background: transparent !important; }
         .stampa-mode .cartellone-wrapper { background-image: none !important; border: 2px solid #000; }
     </style>
 </head>
@@ -189,7 +191,7 @@
                 <button class="btn-tool" style="background:#2ecc71; color:white;" onclick="aggiornaDatiAnteprima()">🔄 Aggiorna Dati</button>
                 <button class="btn-tool" style="background:#3498db; color:white;" onclick="toggleStampa()">👁️ Preview Stampa</button>
             </div>
-            <p style="font-size: 12px; text-align: center; margin-top: 0; color: #7f8c8d;">Trascina la barra in alto per spostare. Usa l'angolo blu in basso a destra per allargare. I bordi si auto-restringeranno!</p>
+            <p style="font-size: 12px; text-align: center; margin-top: 0; color: #7f8c8d;">Usa la barra blu per spostare. Trascina l'angolino in basso a destra per allargare (le proporzioni si manterranno perfette). Clicca il testo per modificarlo!</p>
             <div class="cartellone-wrapper" id="cartellone-lavagna">
                 </div>
         </div>
@@ -226,10 +228,8 @@
         window.creaNuovaArea = function() {
             const nomePulito = document.getElementById('input-laureato').value.trim().toLowerCase().replace(/\s+/g, '');
             if(!nomePulito) return alert("Per favore, inserisci il nome del laureato!");
-            
             const codiceSegreto = Math.random().toString(36).substring(2, 7); 
             idEventoSegreto = `${nomePulito}-${codiceSegreto}`;
-            
             try { window.history.pushState({}, '', `?id=${idEventoSegreto}`); } catch(err) {}
             avviaApp();
         };
@@ -238,7 +238,6 @@
             if(!confirm("Vuoi uscire dall'area di questo evento?")) return;
             idEventoSegreto = "";
             try { window.history.pushState({}, '', window.location.pathname); } catch(err) {}
-            
             document.getElementById('main-nav').style.display = 'none';
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('login-section').style.display = 'block';
@@ -249,7 +248,6 @@
         window.avviaApp = function() {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('main-nav').style.display = 'flex';
-            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
             document.querySelector('.tab-link').classList.add('active'); 
@@ -257,7 +255,6 @@
             
             let nomeRaw = idEventoSegreto.split('-')[0];
             nomeVisuale = nomeRaw.charAt(0).toUpperCase() + nomeRaw.slice(1);
-            
             document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${nomeVisuale}`;
             
             let base_url = window.location.href.split('?')[0];
@@ -272,7 +269,7 @@
             if(el) el.classList.add('active');
         };
 
-        // --- MOTORE LAVAGNA INTERATTIVA (CON AUTO-SNAP E ZOOM) ---
+        // --- MOTORE LAVAGNA INTERATTIVA (VERSIONE ASPECT RATIO LOCK) ---
         window.apriAnteprima = function(el) {
             apriSezione('anteprima', el);
             aggiornaDatiAnteprima();
@@ -287,45 +284,85 @@
             let lavagna = document.getElementById('cartellone-lavagna');
             lavagna.innerHTML = ''; 
             
-            creaBox("TITOLO", `<div class="cart-titolo-txt" contenteditable="true">LAUREA DI ${nomeVisuale.toUpperCase()}</div>`, 2, 5, 90, 10);
-            creaBox("CARICATURA", `<div class="cart-caricatura-ph">📸<br>Spazio Caricatura</div>`, 15, 5, 40, 35);
+            // Larghezza passata in percentuale (es: 90%), l'altezza verrà calcolata in automatico dallo script!
+            creaBox("TITOLO", `<div class="cart-titolo-txt" contenteditable="true">LAUREA DI ${nomeVisuale.toUpperCase()}</div>`, 2, 5, 90);
+            creaBox("CARICATURA", `<div class="cart-caricatura-ph">📸<br>Spazio Caricatura</div>`, 15, 5, 45);
 
-            let testiPapiro = dati.papiro.map(p => `<p style="margin:5px 0;">"${p.aneddoto}" <br><small><b>- ${p.autore}</b></small></p>`).join('');
-            if(!testiPapiro) testiPapiro = "<p>Nessun aneddoto ancora inserito.</p>";
-            creaBox("PAPIRO", `<div class="cart-papiro-txt" contenteditable="true"><h3 style="margin:0 0 10px 0; text-align:center;">IL PAPIRO</h3>${testiPapiro}</div>`, 15, 50, 45, 80);
+            let testiPapiro = dati.papiro.map(p => `<p style="margin:8px 0;">"${p.aneddoto}" <br><small><b>- ${p.autore}</b></small></p>`).join('');
+            if(!testiPapiro) testiPapiro = "<p>Nessun aneddoto inserito.</p>";
+            creaBox("PAPIRO", `<div class="cart-papiro-txt" contenteditable="true"><h3 style="margin:0 0 10px 0; text-align:center;">IL PAPIRO</h3>${testiPapiro}</div>`, 15, 52, 43);
 
-            let gridHtml = document.querySelector('#crossword-container .cw-grid') ? document.querySelector('#crossword-container .cw-grid').outerHTML : "<i style='font-size:16px;'>Genera prima il cruciverba!</i>";
-            creaBox("CRUCIVERBA", gridHtml, 55, 5, 40, 30);
+            let gridHtml = document.querySelector('#crossword-container .cw-grid') ? document.querySelector('#crossword-container .cw-grid').outerHTML : "<i style='font-size:16px; padding:10px;'>Genera prima il cruciverba!</i>";
+            creaBox("CRUCIVERBA", gridHtml, 50, 5, 45);
 
             let defsHtml = document.getElementById('crossword-clues') ? document.getElementById('crossword-clues').innerHTML : "";
             if(defsHtml) {
-                // Rimosse classi che davano margini grigi ereditati
-                let cleanDefs = defsHtml.replace(/class="cw-clues-col"/g, 'style="flex:1;"');
-                creaBox("DEFINIZIONI", `<div style="display:flex; gap:15px; width:100%; justify-content: space-between;" contenteditable="true">${cleanDefs}</div>`, 87, 5, 90, 10);
+                creaBox("DEFINIZIONI", `<div style="display:flex; width:100%; justify-content: flex-start;" contenteditable="true">${defsHtml}</div>`, 80, 5, 90);
             }
 
-            attivaMotoreMobile();
+            setTimeout(attivaMotoreMagico, 100); // Leggero delay per far renderizzare i font
         };
 
-        function creaBox(label, content, top, left, w, h) {
+        function creaBox(label, content, top, left, widthPercent) {
             let box = document.createElement('div');
             box.className = 'drag-box';
-            box.style.cssText = `top:${top}%; left:${left}%; width:${w}%; height:${h}%;`;
+            box.style.top = top + '%';
+            box.style.left = left + '%';
+            box.style.width = widthPercent + '%';
+            // Non impostiamo l'height qui! Lo calcolerà lo script per evitare spazi vuoti
+            
             box.innerHTML = `
-                <div class="drag-handle"><span>🤚 Sposta</span><button onclick="this.parentElement.parentElement.remove()">❌</button></div>
+                <div class="drag-handle"><span>🤚 Sposta ${label}</span><button onclick="this.parentElement.parentElement.remove()">❌</button></div>
                 <div class="drag-content"><div class="zoom-fit">${content}</div></div>
                 <div class="resize-handle"></div>
             `;
             document.getElementById('cartellone-lavagna').appendChild(box);
         }
 
-        function attivaMotoreMobile() {
+        // Funzione unificata: Drag, Resize con Aspect Ratio, e Auto-Fit
+        function attivaMotoreMagico() {
             document.querySelectorAll('.drag-box').forEach(box => {
+                if(box.dataset.active) return;
+                box.dataset.active = "true";
+
                 const handle = box.querySelector('.drag-handle');
                 const resizer = box.querySelector('.resize-handle');
-                let startX, startY, startWidth, startHeight, startLeft, startTop;
+                const contentContainer = box.querySelector('.drag-content');
+                const zoomTarget = box.querySelector('.zoom-fit');
+                const inner = zoomTarget.firstElementChild;
+                
+                if(!inner) return;
 
-                // --- 1. SPOSTAMENTO DRAG ---
+                // --- 1. INIZIALIZZAZIONE DIMENSIONI PERFETTE ---
+                // Calcoliamo la dimensione "naturale" del contenuto
+                let naturalW = inner.offsetWidth;
+                let naturalH = inner.offsetHeight;
+                let handleH = handle ? handle.offsetHeight : 0;
+                
+                // La larghezza attuale del box (settata in % da creaBox)
+                let currentBoxW = box.offsetWidth;
+                
+                // Calcoliamo la scala iniziale per far fittare il contenuto nella larghezza
+                let initialScale = currentBoxW / naturalW;
+                
+                // FORZIAMO l'altezza del box affinché abbracci esattamente il contenuto scalato (ZERO spazi vuoti)
+                box.style.height = (naturalH * initialScale + handleH) + 'px';
+                
+                // Applichiamo la scala e modifichiamo il transform-origin in top left!
+                zoomTarget.style.transform = `scale(${initialScale})`;
+                
+                // --- AGGIORNAMENTO LIVE SE SI MODIFICA IL TESTO ---
+                if (inner.getAttribute('contenteditable') === "true") {
+                    inner.addEventListener('input', () => {
+                        let nH = inner.offsetHeight;
+                        let currentScale = parseFloat(zoomTarget.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                        box.style.height = (nH * currentScale + handle.offsetHeight) + 'px';
+                    });
+                }
+
+                // --- 2. SPOSTAMENTO (DRAG) ---
+                let startX, startY, startLeft, startTop, startWidth;
+
                 function initDrag(e) {
                     if(e.target.tagName === 'BUTTON') return; 
                     e.preventDefault();
@@ -343,13 +380,17 @@
                     e.preventDefault();
                     let currentX = e.clientX || (e.touches ? e.touches[0].clientX : startX);
                     let currentY = e.clientY || (e.touches ? e.touches[0].clientY : startY);
+                    
                     let newLeft = startLeft + (currentX - startX);
                     let newTop = startTop + (currentY - startY);
+                    
+                    // Limiti cartellone
                     let parent = box.parentElement;
                     if(newLeft < 0) newLeft = 0;
                     if(newTop < 0) newTop = 0;
                     if(newLeft + box.offsetWidth > parent.offsetWidth) newLeft = parent.offsetWidth - box.offsetWidth;
                     if(newTop + box.offsetHeight > parent.offsetHeight) newTop = parent.offsetHeight - box.offsetHeight;
+
                     box.style.left = newLeft + 'px';
                     box.style.top = newTop + 'px';
                 }
@@ -357,13 +398,17 @@
                 handle.addEventListener('mousedown', initDrag, false);
                 handle.addEventListener('touchstart', initDrag, {passive: false});
 
-                // --- 2. RIDIMENSIONAMENTO CUSTOM ---
+                // --- 3. RIDIMENSIONAMENTO CHE RISPETTA LE PROPORZIONI (ASPECT RATIO LOCK) ---
                 function initResize(e) {
                     e.preventDefault(); e.stopPropagation();
                     startX = e.clientX || e.touches[0].clientX;
-                    startY = e.clientY || e.touches[0].clientY;
                     startWidth = box.offsetWidth;
-                    startHeight = box.offsetHeight;
+                    
+                    // Ricalcoliamo i natural in caso siano cambiati modificando il testo
+                    naturalW = inner.offsetWidth;
+                    naturalH = inner.offsetHeight;
+                    handleH = handle ? handle.offsetHeight : 0;
+
                     document.addEventListener('mousemove', doResize, {passive: false});
                     document.addEventListener('touchmove', doResize, {passive: false});
                     document.addEventListener('mouseup', stopAll, false);
@@ -373,9 +418,22 @@
                 function doResize(e) {
                     e.preventDefault();
                     let currentX = e.clientX || (e.touches ? e.touches[0].clientX : startX);
-                    let currentY = e.clientY || (e.touches ? e.touches[0].clientY : startY);
-                    box.style.width = (startWidth + currentX - startX) + 'px';
-                    box.style.height = (startHeight + currentY - startY) + 'px';
+                    let diffX = currentX - startX;
+                    
+                    let newW = startWidth + diffX;
+                    if (newW < 50) newW = 50; // Limite min
+
+                    // Calcolo la scala esatta basandomi SOLO sulla larghezza
+                    let newScale = newW / naturalW;
+                    
+                    // L'altezza è obbligata a seguire le proporzioni: Aspect Ratio Lock!
+                    let newH = (naturalH * newScale) + handleH;
+
+                    // Setto entrambe le dimensioni contemporaneamente. Nessuno spazio vuoto possibile.
+                    box.style.width = newW + 'px';
+                    box.style.height = newH + 'px';
+                    
+                    zoomTarget.style.transform = `scale(${newScale})`;
                 }
 
                 if(resizer) {
@@ -383,7 +441,6 @@
                     resizer.addEventListener('touchstart', initResize, {passive: false});
                 }
 
-                // --- 3. AUTO-SNAP: TAGLIA LO SPAZIO VUOTO QUANDO LASCI IL DITO ---
                 function stopAll() {
                     document.removeEventListener('mousemove', doDrag, false);
                     document.removeEventListener('touchmove', doDrag, false);
@@ -391,59 +448,11 @@
                     document.removeEventListener('touchmove', doResize, false);
                     document.removeEventListener('mouseup', stopAll, false);
                     document.removeEventListener('touchend', stopAll, false);
-
-                    // AUTO SNAP: Restringe il box per aderire al contenuto scalato
-                    const contentContainer = box.querySelector('.drag-content');
-                    const zoomTarget = box.querySelector('.zoom-fit');
-                    
-                    if (contentContainer && zoomTarget && zoomTarget.firstElementChild) {
-                        let inner = zoomTarget.firstElementChild;
-                        let transformStr = zoomTarget.style.transform;
-                        let currentScale = 1;
-                        if(transformStr.includes('scale')) {
-                            currentScale = parseFloat(transformStr.replace('scale(', '').replace(')', ''));
-                        }
-                        
-                        // Calcola le dimensioni reali che occupa ora il contenuto
-                        let exactWidth = inner.offsetWidth * currentScale;
-                        let exactHeight = inner.offsetHeight * currentScale;
-                        let handleHeight = box.querySelector('.drag-handle') ? box.querySelector('.drag-handle').offsetHeight : 0;
-
-                        // Aggiusta il box eliminando il margine vuoto (+2px di sicurezza)
-                        if(exactWidth > 0 && exactHeight > 0) {
-                            box.style.width = (exactWidth + 2) + 'px';
-                            box.style.height = (exactHeight + handleHeight + 2) + 'px';
-                        }
-                    }
                 }
-
-                // --- 4. ZOOM AUTOMATICO IN TEMPO REALE ---
-                const observer = new ResizeObserver(entries => {
-                    for (let entry of entries) {
-                        const contentContainer = box.querySelector('.drag-content');
-                        const zoomTarget = box.querySelector('.zoom-fit');
-
-                        if (contentContainer && zoomTarget && zoomTarget.firstElementChild) {
-                            zoomTarget.style.transform = 'scale(1)'; // Resetta per calcolare base
-                            
-                            let inner = zoomTarget.firstElementChild;
-                            const naturalWidth = inner.offsetWidth;
-                            const naturalHeight = inner.offsetHeight;
-                            const boxWidth = contentContainer.clientWidth;
-                            const boxHeight = contentContainer.clientHeight;
-
-                            if(naturalWidth > 0 && naturalHeight > 0) {
-                                // Usa il valore minimo per ingrandire senza sformare (Cruciverba quadrato)
-                                const scale = Math.min(boxWidth / naturalWidth, boxHeight / naturalHeight); 
-                                zoomTarget.style.transform = `scale(${scale})`;
-                            }
-                        }
-                    }
-                });
-                observer.observe(box);
             });
         }
 
+        // --- FUNZIONI DATABASE ---
         window.caricaDati = async function() {
             if (!clientSupabase) return; 
             try {
@@ -517,6 +526,7 @@
             });
         };
 
+        // ALGORITMO CRUCIVERBA
         window.generaCruciverbaMagico = function() {
             if(dati.cruciverba.length < 2) return alert("Inserisci almeno 2 parole!");
             document.getElementById('crossword-wrapper').style.display = 'block';

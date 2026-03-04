@@ -128,75 +128,72 @@
     </main>
 
     <script>
-        // --- CONFIGURAZIONE SUPABASE ---
-        const SUPABASE_URL = 'https://dfjvdenqbokvtmsqyjsh.supabase.co';
-        // QUI È DOVE C'ERA L'ERRORE! ORA LA CHIAVE È QUELLA GIUSTA:
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        // --- VARIABILI GLOBALI PROTETTE ---
+        let supabase = null;
         let nomeLaureato = "";
         let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
 
-        // --- GESTIONE AVVIO E URL ---
-        window.onload = () => {
+        // --- INIZIALIZZAZIONE AL CARICAMENTO ---
+        window.onload = function() {
             try {
+                // Controllo se un AdBlocker ha bloccato Supabase
+                if (typeof window.supabase === 'undefined') {
+                    console.error("Libreria Supabase non trovata!");
+                    alert("⚠️ ATTENZIONE: Il tuo browser o il tuo Antivirus/AdBlocker ha bloccato il database. L'interfaccia funzionerà, ma i dati non verranno salvati su internet! Prova a disattivare l'AdBlocker.");
+                } else {
+                    const SUPABASE_URL = 'https://dfjvdenqbokvtmsqyjsh.supabase.co';
+                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                }
+
                 const params = new URLSearchParams(window.location.search);
                 const l = params.get('laureato');
                 if (l) {
                     nomeLaureato = l.toLowerCase();
                     avviaApp();
                 }
-            } catch(e) { console.error("Errore lettura parametri URL", e); }
+            } catch(e) { console.error("Errore critico in onload", e); }
         };
 
-        function impostaLaureato() {
+        window.impostaLaureato = function() {
             try {
                 const val = document.getElementById('input-laureato').value.trim();
-                if(!val) return alert("Per favore, inserisci il nome del laureato!");
+                if(!val) return alert("Per favore, inserisci il nome!");
                 nomeLaureato = val.toLowerCase();
                 
-                // GESTIONE ANTICRASH PER FILE LOCALI
-                try {
-                    window.history.pushState({}, '', `?laureato=${nomeLaureato}`);
-                } catch(e) {
-                    console.warn("Aggiornamento URL ignorato (probabilmente stai usando file:// anziché http://)");
-                }
+                // Provo ad aggiornare l'URL, ignoro l'errore se apro dal Desktop locale
+                try { window.history.pushState({}, '', `?laureato=${nomeLaureato}`); } catch(err) {}
 
                 avviaApp();
-            } catch(error) {
-                alert("Si è verificato un errore nel bottone: " + error.message);
-            }
-        }
+            } catch(error) { alert("Errore del bottone: " + error); }
+        };
 
-        function avviaApp() {
-            // Usa classList per nascondere/mostrare, è più solido rispetto a style.display
+        window.avviaApp = function() {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('main-nav').style.display = 'flex';
             
-            // Attiva la sezione home
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('home').classList.add('active');
             
-            // Capitalizza la prima lettera del nome
             let nomeFormattato = nomeLaureato.charAt(0).toUpperCase() + nomeLaureato.slice(1);
             document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${nomeFormattato}`;
             
-            // Crea il link da condividere
             let base_url = window.location.href.split('?')[0];
             document.getElementById('share-link').value = `${base_url}?laureato=${nomeLaureato}`;
             
             caricaDati();
-        }
+        };
 
-        function apriSezione(id, el) {
+        window.apriSezione = function(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
-        }
+        };
 
-        // --- GESTIONE DATABASE SUPABASE ---
-        async function caricaDati() {
+        // --- GESTIONE DATABASE ---
+        window.caricaDati = async function() {
+            if (!supabase) return; // Se è bloccato, non fa nulla
             try {
                 for (let t of ['cruciverba', 'caricatura', 'papiro', 'regalo']) {
                     const { data, error } = await supabase.from(t).select('*').eq('laureato_tag', nomeLaureato).order('created_at', {ascending: false});
@@ -205,16 +202,15 @@
                     if (t === 'regalo' && data) {
                         data.sort((a, b) => b.voti - a.voti);
                     }
-                    
                     dati[t] = data || [];
                     aggiornaUI(t);
                 }
-            } catch (err) {
-                console.error("Errore di caricamento dati. Potrebbe essere un problema di rete o di Supabase.", err);
-            }
-        }
+            } catch (err) { console.error("Errore caricamento dati:", err); }
+        };
 
         window.aggiungi = async function(tipo) {
+            if (!supabase) return alert("Database bloccato dall'AdBlocker, impossibile salvare.");
+
             let autoreId = ''; let testoId = '';
             if (tipo === 'cruciverba') { autoreId = 'cruci-autore'; testoId = 'cruci-def'; }
             if (tipo === 'caricatura') { autoreId = 'cari-autore'; testoId = 'cari-idea'; }
@@ -227,42 +223,37 @@
 
             if (tipo === 'cruciverba') {
                 let parola = document.getElementById('cruci-parola').value.toUpperCase().replace(/[^A-Z]/g, '');
-                if (!parola || !campoTesto) return alert("Compila sia la parola che la definizione! Usa solo lettere per la parola.");
-                obj.parola = parola; 
-                obj.definizione = campoTesto;
+                if (!parola || !campoTesto) return alert("Compila la parola e la definizione!");
+                obj.parola = parola; obj.definizione = campoTesto;
             } else if (tipo === 'caricatura') {
-                if(!campoTesto) return alert("Scrivi la tua idea per la caricatura!");
-                obj.idea_dettagliata = campoTesto;
+                if(!campoTesto) return alert("Scrivi l'idea!"); obj.idea_dettagliata = campoTesto;
             } else if (tipo === 'papiro') {
-                if(!campoTesto) return alert("Scrivi l'aneddoto!");
-                obj.aneddoto = campoTesto;
+                if(!campoTesto) return alert("Scrivi l'aneddoto!"); obj.aneddoto = campoTesto;
             } else if (tipo === 'regalo') {
-                if(!campoTesto) return alert("Scrivi la proposta regalo!");
-                obj.proposta_regalo = campoTesto; 
-                obj.voti = 0;
+                if(!campoTesto) return alert("Scrivi la proposta!"); obj.proposta_regalo = campoTesto; obj.voti = 0;
             }
 
             const { error } = await supabase.from(tipo).insert([obj]);
             
-            if(error) {
-                alert("Errore durante il salvataggio: " + error.message);
-            } else {
+            if(error) alert("Errore di salvataggio: " + error.message);
+            else {
                 document.getElementById(testoId).value = '';
                 document.getElementById(autoreId).value = '';
                 if(tipo === 'cruciverba') document.getElementById('cruci-parola').value = '';
-                alert("Dato salvato con successo!");
                 caricaDati();
             }
         };
 
         window.elimina = async function(tipo, id) {
-            if(confirm("Sei sicuro di voler eliminare questo elemento definitivamente?")) {
+            if (!supabase) return;
+            if(confirm("Sei sicuro di voler eliminare?")) {
                 await supabase.from(tipo).delete().eq('id', id);
                 caricaDati();
             }
         };
 
         window.votaRegalo = async function(id) {
+            if (!supabase) return;
             let item = dati.regalo.find(r => r.id === id);
             if(item) {
                 await supabase.from('regalo').update({ voti: item.voti + 1 }).eq('id', id);
@@ -270,9 +261,9 @@
             }
         };
 
-        function aggiornaUI(tipo) {
+        window.aggiornaUI = function(tipo) {
             const container = document.getElementById(`lista-${tipo}`);
-            container.innerHTML = dati[tipo].length ? '' : '<i>Nessun contributo inserito. Sii il primo!</i>';
+            container.innerHTML = dati[tipo].length ? '' : '<i>Nessun contributo inserito.</i>';
             
             dati[tipo].forEach(item => {
                 let txt = '';
@@ -295,58 +286,48 @@
                     </div>
                 `;
             });
-        }
+        };
 
-        // --- ALGORITMO AVANZATO GENERATORE CRUCIVERBA ---
+        // --- ALGORITMO CRUCIVERBA ---
         window.generaCruciverbaMagico = function() {
-            if(dati.cruciverba.length < 2) return alert("Devi inserire almeno 2 parole nel database per generare un cruciverba!");
+            if(dati.cruciverba.length < 2) return alert("Inserisci almeno 2 parole!");
             
             document.getElementById('crossword-wrapper').style.display = 'block';
             let words = [...dati.cruciverba].sort((a,b) => b.parola.length - a.parola.length);
             
-            const SIZE = 60; 
-            let grid = Array(SIZE).fill(null).map(() => Array(SIZE).fill(null));
+            const SIZE = 60; let grid = Array(SIZE).fill(null).map(() => Array(SIZE).fill(null));
             let placedWords = [];
 
-            function placeWord(wordObj, r, c, dir) {
-                for(let i = 0; i < wordObj.parola.length; i++) {
-                    if (dir === 'H') grid[r][c + i] = wordObj.parola[i];
-                    else grid[r + i][c] = wordObj.parola[i];
-                }
-                placedWords.push({ ...wordObj, r: r, c: c, dir: dir });
+            function placeWord(w, r, c, dir) {
+                for(let i=0; i<w.parola.length; i++) { if (dir==='H') grid[r][c+i] = w.parola[i]; else grid[r+i][c] = w.parola[i]; }
+                placedWords.push({ ...w, r: r, c: c, dir: dir });
             }
 
-            function canPlace(parola, r, c, dir) {
-                if (dir === 'H' && c + parola.length > SIZE) return false;
-                if (dir === 'V' && r + parola.length > SIZE) return false;
-                if (r < 0 || c < 0) return false;
-
-                let intersections = 0;
-                for (let i = 0; i < parola.length; i++) {
-                    let curR = dir === 'H' ? r : r + i;
-                    let curC = dir === 'H' ? c + i : c;
-                    
-                    if (grid[curR][curC] === parola[i]) { intersections++; continue; }
-                    if (grid[curR][curC] !== null) return false; 
-
-                    if (dir === 'H') {
-                        if (curR > 0 && grid[curR - 1][curC] !== null) return false;
-                        if (curR < SIZE - 1 && grid[curR + 1][curC] !== null) return false;
+            function canPlace(p, r, c, dir) {
+                if (dir==='H' && c+p.length > SIZE) return false;
+                if (dir==='V' && r+p.length > SIZE) return false;
+                if (r<0 || c<0) return false;
+                let inter = 0;
+                for (let i=0; i<p.length; i++) {
+                    let cR = dir==='H' ? r : r+i; let cC = dir==='H' ? c+i : c;
+                    if (grid[cR][cC] === p[i]) { inter++; continue; }
+                    if (grid[cR][cC] !== null) return false; 
+                    if (dir==='H') {
+                        if (cR>0 && grid[cR-1][cC] !== null) return false;
+                        if (cR<SIZE-1 && grid[cR+1][cC] !== null) return false;
                     } else {
-                        if (curC > 0 && grid[curR][curC - 1] !== null) return false;
-                        if (curC < SIZE - 1 && grid[curR][curC + 1] !== null) return false;
+                        if (cC>0 && grid[cR][cC-1] !== null) return false;
+                        if (cC<SIZE-1 && grid[cR][cC+1] !== null) return false;
                     }
                 }
-                
-                if (dir === 'H') {
-                    if (c > 0 && grid[r][c - 1] !== null) return false;
-                    if (c + parola.length < SIZE && grid[r][c + parola.length] !== null) return false;
+                if (dir==='H') {
+                    if (c>0 && grid[r][c-1] !== null) return false;
+                    if (c+p.length < SIZE && grid[r][c+p.length] !== null) return false;
                 } else {
-                    if (r > 0 && grid[r - 1][c] !== null) return false;
-                    if (r + parola.length < SIZE && grid[r + parola.length][c] !== null) return false;
+                    if (r>0 && grid[r-1][c] !== null) return false;
+                    if (r+p.length < SIZE && grid[r+p.length][c] !== null) return false;
                 }
-
-                return intersections > 0 || placedWords.length === 0;
+                return inter > 0 || placedWords.length === 0;
             }
 
             let firstWord = words.shift();
@@ -356,17 +337,14 @@
                 let placed = false;
                 for (let p of placedWords) {
                     if (placed) break;
-                    for (let i = 0; i < p.parola.length; i++) {
-                        for (let j = 0; j < wordObj.parola.length; j++) {
+                    for (let i=0; i<p.parola.length; i++) {
+                        for (let j=0; j<wordObj.parola.length; j++) {
                             if (p.parola[i] === wordObj.parola[j]) {
-                                let newR = p.dir === 'H' ? p.r - j : p.r + i;
-                                let newC = p.dir === 'H' ? p.c + i : p.c - j;
-                                let newDir = p.dir === 'H' ? 'V' : 'H';
-                                
-                                if (canPlace(wordObj.parola, newR, newC, newDir)) {
-                                    placeWord(wordObj, newR, newC, newDir);
-                                    placed = true;
-                                    break;
+                                let nR = p.dir==='H' ? p.r-j : p.r+i;
+                                let nC = p.dir==='H' ? p.c+i : p.c-j;
+                                let nDir = p.dir==='H' ? 'V' : 'H';
+                                if (canPlace(wordObj.parola, nR, nC, nDir)) {
+                                    placeWord(wordObj, nR, nC, nDir); placed = true; break;
                                 }
                             }
                         }
@@ -376,20 +354,19 @@
             });
 
             let minR = SIZE, maxR = 0, minC = SIZE, maxC = 0;
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
+            for (let r=0; r<SIZE; r++) {
+                for (let c=0; c<SIZE; c++) {
                     if (grid[r][c] !== null) {
                         minR = Math.min(minR, r); maxR = Math.max(maxR, r);
                         minC = Math.min(minC, c); maxC = Math.max(maxC, c);
                     }
                 }
             }
-
-            minR = Math.max(0, minR - 1); maxR = Math.min(SIZE - 1, maxR + 1);
-            minC = Math.max(0, minC - 1); maxC = Math.min(SIZE - 1, maxC + 1);
+            minR = Math.max(0, minR-1); maxR = Math.min(SIZE-1, maxR+1);
+            minC = Math.max(0, minC-1); maxC = Math.min(SIZE-1, maxC+1);
 
             let htmlTable = '<table class="cw-grid">';
-            let numberCounter = 1; let orizzontali = []; let verticali = [];
+            let numCounter = 1; let orizz = []; let verti = [];
 
             for (let r = minR; r <= maxR; r++) {
                 htmlTable += '<tr>';
@@ -399,12 +376,12 @@
                     } else {
                         let startsHere = placedWords.filter(p => p.r === r && p.c === c);
                         if (startsHere.length > 0) {
-                            htmlTable += `<td class="cw-cell"><span class="cw-number">${numberCounter}</span></td>`;
+                            htmlTable += `<td class="cw-cell"><span class="cw-number">${numCounter}</span></td>`;
                             startsHere.forEach(w => {
-                                let defHtml = `<b>${numberCounter}.</b> ${w.definizione} <i>(${w.parola.length} lett.)</i>`;
-                                if (w.dir === 'H') orizzontali.push(defHtml); else verticali.push(defHtml);
+                                let dHtml = `<b>${numCounter}.</b> ${w.definizione}`;
+                                if (w.dir === 'H') orizz.push(dHtml); else verti.push(dHtml);
                             });
-                            numberCounter++;
+                            numCounter++;
                         } else {
                             htmlTable += `<td class="cw-cell"></td>`;
                         }
@@ -416,14 +393,8 @@
 
             document.getElementById('crossword-container').innerHTML = htmlTable;
             document.getElementById('crossword-clues').innerHTML = `
-                <div class="cw-clues-col">
-                    <h4 style="color:var(--primary); margin-top:0; border-bottom:1px solid #ddd; padding-bottom:5px;">➡️ ORIZZONTALI</h4>
-                    ${orizzontali.join('<br><br>')}
-                </div>
-                <div class="cw-clues-col">
-                    <h4 style="color:var(--primary); margin-top:0; border-bottom:1px solid #ddd; padding-bottom:5px;">⬇️ VERTICALI</h4>
-                    ${verticali.join('<br><br>')}
-                </div>
+                <div class="cw-clues-col"><h4>➡️ ORIZZONTALI</h4>${orizz.join('<br><br>')}</div>
+                <div class="cw-clues-col"><h4>⬇️ VERTICALI</h4>${verti.join('<br><br>')}</div>
             `;
         };
     </script>

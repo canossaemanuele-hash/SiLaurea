@@ -37,7 +37,13 @@
 
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        .form-group input[type="text"], .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        .form-group input:disabled { background-color: #f5f5f5; color: #aaa; cursor: not-allowed; }
+        
+        /* Stile per la riga Nome + Spunta Anonimo */
+        .row-autore { display: flex; align-items: center; gap: 15px; }
+        .row-autore input[type="text"] { flex: 1; }
+        .row-autore .anonimo-check { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
 
         button.btn-submit { background-color: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; margin-bottom: 10px; transition: 0.3s; }
         button.btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
@@ -82,7 +88,7 @@
             
             <div class="avviso-invitati">
                 <b>Sei un invitato?</b><br>
-                Non puoi entrare da qui. Devi cliccare direttamente sul link di invito che ti è stato inviato su WhatsApp o via email!
+                Non puoi entrare da qui. Devi cliccare direttamente sul link di invito che ti è stato inviato su WhatsApp!
             </div>
         </div>
 
@@ -98,7 +104,10 @@
 
         <div id="cruciverba" class="section">
             <h2>🧩 Cruciverba</h2>
-            <div class="form-group"><input type="text" id="cruci-autore" placeholder="Il tuo nome (opzionale)"></div>
+            <div class="form-group row-autore">
+                <input type="text" id="cruci-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('cruci-autore', this)"> Invia in anonimo</label>
+            </div>
             <div class="form-group"><input type="text" id="cruci-parola" placeholder="Parola da indovinare (es. SPRITZ)"></div>
             <div class="form-group"><textarea id="cruci-def" rows="2" placeholder="Scrivi qui la definizione (es. Lo beve sempre il venerdì)"></textarea></div>
             <button class="btn-submit" onclick="aggiungi('cruciverba')">Salva nel Database</button>
@@ -109,7 +118,10 @@
 
         <div id="caricatura" class="section">
             <h2>🎨 Caricatura</h2>
-            <div class="form-group"><input type="text" id="cari-autore" placeholder="Il tuo nome (opzionale)"></div>
+            <div class="form-group row-autore">
+                <input type="text" id="cari-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('cari-autore', this)"> Invia in anonimo</label>
+            </div>
             <div class="form-group"><textarea id="cari-idea" rows="3" placeholder="Descrivi la tua idea per il disegno..."></textarea></div>
             <button class="btn-submit" onclick="aggiungi('caricatura')">Invia Proposta</button>
             <div class="lista-idee"><h3>Idee raccolte:</h3><div id="lista-caricatura"></div></div>
@@ -117,7 +129,10 @@
 
         <div id="papiro" class="section">
             <h2>📜 Papiro</h2>
-            <div class="form-group"><input type="text" id="papiro-autore" placeholder="Il tuo nome (opzionale)"></div>
+            <div class="form-group row-autore">
+                <input type="text" id="papiro-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('papiro-autore', this)"> Invia in anonimo</label>
+            </div>
             <div class="form-group"><textarea id="papiro-aneddoto" rows="3" placeholder="Scrivi un aneddoto, una figuraccia o una rima..."></textarea></div>
             <button class="btn-submit" onclick="aggiungi('papiro')">Aggiungi al Papiro</button>
             <div class="lista-idee"><h3>Aneddoti raccolti:</h3><div id="lista-papiro"></div></div>
@@ -125,7 +140,10 @@
 
         <div id="regalo" class="section">
             <h2>🎁 Regalo</h2>
-            <div class="form-group"><input type="text" id="reg-autore" placeholder="Il tuo nome (opzionale)"></div>
+            <div class="form-group row-autore">
+                <input type="text" id="reg-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('reg-autore', this)"> Invia in anonimo</label>
+            </div>
             <div class="form-group"><textarea id="reg-idea" rows="2" placeholder="Cosa regaliamo? Proponi qualcosa..."></textarea></div>
             <button class="btn-submit" onclick="aggiungi('regalo')">Proponi Regalo</button>
             <div class="lista-idee"><h3>Proposte Regalo:</h3><div id="lista-regalo"></div></div>
@@ -144,28 +162,31 @@
         let idEventoSegreto = ""; 
         let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
 
-        // --- AVVIO APP: CONTROLLA SE C'È UN LINK DI INVITO ---
         window.onload = function() {
             try {
                 const params = new URLSearchParams(window.location.search);
-                // Ora leggiamo "id" invece di "laureato"
                 const idInvitato = params.get('id'); 
                 if (idInvitato) {
                     idEventoSegreto = idInvitato;
-                    avviaApp(); // Bypass diretto per gli invitati
+                    avviaApp(); 
                 }
             } catch(e) { console.error(e); }
         };
 
-        // --- CREAZIONE AREA SICURA (SOLO PER ORGANIZZATORE) ---
+        // Funzione per la spunta Anonimo
+        window.toggleAnonimo = function(inputId, checkbox) {
+            let inputField = document.getElementById(inputId);
+            inputField.disabled = checkbox.checked;
+            if(checkbox.checked) {
+                inputField.value = ''; // Svuota il nome se decide di essere anonimo
+            }
+        };
+
         window.creaNuovaArea = function() {
             const nomePulito = document.getElementById('input-laureato').value.trim().toLowerCase().replace(/\s+/g, '');
             if(!nomePulito) return alert("Per favore, inserisci il nome del laureato!");
             
-            // Genera una stringa casuale di 5 caratteri
             const codiceSegreto = Math.random().toString(36).substring(2, 7); 
-            
-            // Unisce il nome al codice segreto (es. lisarossi-x9p2q)
             idEventoSegreto = `${nomePulito}-${codiceSegreto}`;
             
             try { window.history.pushState({}, '', `?id=${idEventoSegreto}`); } catch(err) {}
@@ -196,7 +217,6 @@
             document.querySelector('.tab-link').classList.add('active'); 
             document.getElementById('home').classList.add('active');
             
-            // Estrae il nome vero dal codice segreto (es. prende "lisarossi" da "lisarossi-x9p2q")
             let nomeVisuale = idEventoSegreto.split('-')[0];
             nomeVisuale = nomeVisuale.charAt(0).toUpperCase() + nomeVisuale.slice(1);
             
@@ -218,7 +238,6 @@
             if (!clientSupabase) return; 
             try {
                 for (let t of ['cruciverba', 'caricatura', 'papiro', 'regalo']) {
-                    // Cerca nel database usando l'ID univoco completo!
                     const { data, error } = await clientSupabase.from(t).select('*').eq('laureato_tag', idEventoSegreto).order('created_at', {ascending: false});
                     if (error) throw error;
                     if (t === 'regalo' && data) data.sort((a, b) => b.voti - a.voti);
@@ -236,9 +255,11 @@
             if (tipo === 'papiro') { autoreId = 'papiro-autore'; testoId = 'papiro-aneddoto'; }
             if (tipo === 'regalo') { autoreId = 'reg-autore'; testoId = 'reg-idea'; }
 
-            let autore = document.getElementById(autoreId).value.trim() || "Anonimo";
+            let autoreInput = document.getElementById(autoreId);
+            // Se l'input è disabilitato (spunta anonimo attiva) o vuoto, è "Anonimo"
+            let autore = autoreInput.disabled ? "Anonimo" : (autoreInput.value.trim() || "Anonimo");
+            
             let campoTesto = document.getElementById(testoId).value.trim();
-            // Salva nel database associandolo all'ID univoco completo
             let obj = { autore: autore, laureato_tag: idEventoSegreto };
 
             if (tipo === 'cruciverba') {
@@ -256,7 +277,8 @@
             const { error } = await clientSupabase.from(tipo).insert([obj]);
             if(error) alert("Errore di salvataggio: " + error.message);
             else {
-                document.getElementById(testoId).value = ''; document.getElementById(autoreId).value = '';
+                document.getElementById(testoId).value = ''; 
+                if(!autoreInput.disabled) autoreInput.value = ''; // Svuota solo se non è anonimo
                 if(tipo === 'cruciverba') document.getElementById('cruci-parola').value = '';
                 caricaDati();
             }
@@ -328,7 +350,11 @@
                 return inter > 0 || placedWords.length === 0;
             }
 
-            let firstWord = words.shift();
+            let firstWord = words.stri();
+            if(!firstWord) {
+                firstWord = words.shift();
+            }
+            
             placeWord(firstWord, 30, 30 - Math.floor(firstWord.parola.length / 2), 'H');
 
             words.forEach(wordObj => {

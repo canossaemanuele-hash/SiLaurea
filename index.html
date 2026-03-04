@@ -40,7 +40,6 @@
         .form-group input[type="text"], .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
         .form-group input:disabled { background-color: #f5f5f5; color: #aaa; cursor: not-allowed; }
         
-        /* Stile per la riga Nome + Spunta Anonimo */
         .row-autore { display: flex; align-items: center; gap: 15px; }
         .row-autore input[type="text"] { flex: 1; }
         .row-autore .anonimo-check { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
@@ -173,12 +172,11 @@
             } catch(e) { console.error(e); }
         };
 
-        // Funzione per la spunta Anonimo
         window.toggleAnonimo = function(inputId, checkbox) {
             let inputField = document.getElementById(inputId);
             inputField.disabled = checkbox.checked;
             if(checkbox.checked) {
-                inputField.value = ''; // Svuota il nome se decide di essere anonimo
+                inputField.value = ''; 
             }
         };
 
@@ -256,7 +254,6 @@
             if (tipo === 'regalo') { autoreId = 'reg-autore'; testoId = 'reg-idea'; }
 
             let autoreInput = document.getElementById(autoreId);
-            // Se l'input è disabilitato (spunta anonimo attiva) o vuoto, è "Anonimo"
             let autore = autoreInput.disabled ? "Anonimo" : (autoreInput.value.trim() || "Anonimo");
             
             let campoTesto = document.getElementById(testoId).value.trim();
@@ -278,7 +275,7 @@
             if(error) alert("Errore di salvataggio: " + error.message);
             else {
                 document.getElementById(testoId).value = ''; 
-                if(!autoreInput.disabled) autoreInput.value = ''; // Svuota solo se non è anonimo
+                if(!autoreInput.disabled) autoreInput.value = ''; 
                 if(tipo === 'cruciverba') document.getElementById('cruci-parola').value = '';
                 caricaDati();
             }
@@ -350,11 +347,7 @@
                 return inter > 0 || placedWords.length === 0;
             }
 
-            let firstWord = words.stri();
-            if(!firstWord) {
-                firstWord = words.shift();
-            }
-            
+            let firstWord = words.shift(); // <- L'ERRORE CORRETTO!
             placeWord(firstWord, 30, 30 - Math.floor(firstWord.parola.length / 2), 'H');
 
             words.forEach(wordObj => {

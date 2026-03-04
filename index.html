@@ -37,7 +37,7 @@
 
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input[type="text"], .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        .form-group input[type="text"], .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
         .form-group input:disabled { background-color: #f5f5f5; color: #aaa; cursor: not-allowed; }
         
         .row-autore { display: flex; align-items: center; gap: 15px; }
@@ -47,6 +47,7 @@
         button.btn-submit { background-color: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; margin-bottom: 10px; transition: 0.3s; }
         button.btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
+        /* Stili Cruciverba */
         #crossword-container { margin-top: 20px; overflow-x: auto; text-align: center; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; }
         .cw-grid { border-collapse: collapse; margin: 0 auto; background: white; border: 2px solid #000; }
         .cw-cell { width: 35px; height: 35px; background: white; border: 1px solid #000; text-align: center; vertical-align: middle; position: relative; font-weight: bold; text-transform: uppercase; font-family: monospace; font-size: 18px; }
@@ -59,6 +60,20 @@
         .btn-del { position: absolute; right: 10px; top: 10px; background: none; border: none; cursor: pointer; color: #e74c3c; font-weight: bold; font-size: 16px; }
         .vote-btn { background: white; border: 1px solid #ddd; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: 600; color: var(--text-main); margin-top: 10px; display: inline-block; }
         .vote-btn:hover { background: #eaf2f8; border-color: var(--primary); color: var(--primary); }
+
+        /* STILI ANTEPRIMA CARTELLONE */
+        .cartellone-wrapper { width: 100%; background: white; border: 2px solid #ccc; padding: 20px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); aspect-ratio: 70 / 100; display: flex; flex-direction: column; overflow: hidden; font-family: 'Times New Roman', serif; box-sizing: border-box; }
+        .cart-header { text-align: center; font-size: 2.2em; color: #c0392b; text-transform: uppercase; font-weight: bold; border-bottom: 3px solid #c0392b; padding-bottom: 10px; margin-bottom: 20px; line-height: 1.1; }
+        .cart-body { display: flex; flex: 1; gap: 15px; }
+        .cart-col-left { flex: 1.2; display: flex; flex-direction: column; gap: 15px; }
+        .cart-col-right { flex: 0.8; display: flex; flex-direction: column; border-left: 1px solid #eee; padding-left: 15px; }
+        .cart-caricatura { border: 3px dashed #bdc3c7; flex: 0.6; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #7f8c8d; background: #f9f9f9; border-radius: 10px; text-align: center; padding: 20px; }
+        .cart-cruci-mini { flex: 0.4; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .cart-cruci-mini .cw-cell { width: 18px !important; height: 18px !important; font-size: 10px !important; }
+        .cart-cruci-mini .cw-empty { width: 18px !important; height: 18px !important; }
+        .cart-cruci-mini .cw-number { font-size: 7px !important; }
+        .cart-testi { font-size: 14px; text-align: justify; overflow-y: hidden; }
+        .cart-testi p { margin-bottom: 10px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -73,32 +88,42 @@
         <button class="tab-link" onclick="apriSezione('caricatura', this)">🎨 Caricatura</button>
         <button class="tab-link" onclick="apriSezione('papiro', this)">📜 Papiro</button>
         <button class="tab-link" onclick="apriSezione('regalo', this)">🎁 Regalo</button>
+        <button class="tab-link" style="background-color: #f1c40f; color: #333;" onclick="apriAnteprima(this)">🖼️ Anteprima</button>
         <button class="tab-link btn-esci" onclick="esci()">🚪 Esci</button>
     </nav>
 
     <main>
         <div id="login-section" class="section active">
             <h2>Gestione Evento</h2>
-            <p>Sei l'organizzatore? Inserisci il nome del laureato per creare un'area sicura e generare il link di invito univoco.</p>
+            <p>Sei l'organizzatore? Crea l'area sicura e il link di invito.</p>
             <div class="form-group">
-                <input type="text" id="input-laureato" placeholder="Nome del Laureato (es: Lisa Rossi)">
+                <label>Titolo del Festeggiato:</label>
+                <select id="input-titolo">
+                    <option value="Dottoressa">Dottoressa 🎓 (Donna)</option>
+                    <option value="Dottore">Dottore 🎓 (Uomo)</option>
+                    <option value="Ingegnere">Ingegnere 📐</option>
+                    <option value="Architetto">Architetto 🏛️</option>
+                    <option value="Maestro">Maestro/a 📚</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" id="input-laureato" placeholder="Nome (es: Lisa Rossi)">
             </div>
             <button class="btn-submit" onclick="creaNuovaArea()">Crea Area Sicura & Genera Link</button>
             
             <div class="avviso-invitati">
                 <b>Sei un invitato?</b><br>
-                Non puoi entrare da qui. Devi cliccare direttamente sul link di invito che ti è stato inviato su WhatsApp!
+                Non puoi entrare da qui. Clicca direttamente sul link di invito che ti è stato inviato!
             </div>
         </div>
 
         <div id="home" class="section">
             <div id="display-laureato" class="badge-laureato"></div>
             <h2>Pronti per la festa? 🎉</h2>
-            <p>Copia questo link segreto e invialo agli amici su WhatsApp per raccogliere le idee:</p>
+            <p>Copia questo link segreto e invialo agli amici su WhatsApp:</p>
             <div class="form-group">
                 <input type="text" id="share-link" readonly onclick="this.select(); document.execCommand('copy'); alert('Link copiato negli appunti!');">
             </div>
-            <p style="font-size: 0.9em; color: var(--text-muted);">Attenzione: solo chi ha questo link esatto potrà vedere e inserire contenuti per questa festa.</p>
         </div>
 
         <div id="cruciverba" class="section">
@@ -107,8 +132,8 @@
                 <input type="text" id="cruci-autore" placeholder="Il tuo nome">
                 <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('cruci-autore', this)"> Invia in anonimo</label>
             </div>
-            <div class="form-group"><input type="text" id="cruci-parola" placeholder="Parola da indovinare (es. SPRITZ)"></div>
-            <div class="form-group"><textarea id="cruci-def" rows="2" placeholder="Scrivi qui la definizione (es. Lo beve sempre il venerdì)"></textarea></div>
+            <div class="form-group"><input type="text" id="cruci-parola" placeholder="Parola (es. SPRITZ)"></div>
+            <div class="form-group"><textarea id="cruci-def" rows="2" placeholder="Definizione (es. Lo beve sempre il venerdì)"></textarea></div>
             <button class="btn-submit" onclick="aggiungi('cruciverba')">Salva nel Database</button>
             <button class="btn-submit" style="background:#2c3e50" onclick="generaCruciverbaMagico()">🎲 Crea Griglia da Stampare</button>
             <div id="crossword-wrapper" style="display: none; margin-top:30px;"><div id="crossword-container"></div><div id="crossword-clues" class="cw-clues-container"></div></div>
@@ -147,6 +172,29 @@
             <button class="btn-submit" onclick="aggiungi('regalo')">Proponi Regalo</button>
             <div class="lista-idee"><h3>Proposte Regalo:</h3><div id="lista-regalo"></div></div>
         </div>
+
+        <div id="anteprima" class="section">
+            <h2>🖼️ Anteprima Cartellone 70x100</h2>
+            <p>Ecco come verrà impaginato il materiale. (Genera prima la griglia del cruciverba per vederla qui!)</p>
+            <div class="cartellone-wrapper">
+                <div class="cart-header" id="cart-titolo">CONGRATULAZIONI DOTTORESSA LISA ROSSI</div>
+                <div class="cart-body">
+                    <div class="cart-col-left">
+                        <div class="cart-caricatura">
+                            📸<br>Spazio riservato alla Caricatura
+                        </div>
+                        <div class="cart-cruci-mini" id="cart-cruci-preview">
+                            <i style="color:#aaa;">(Nessuna griglia generata. Vai in Cruciverba e clicca "Crea Griglia")</i>
+                        </div>
+                    </div>
+                    <div class="cart-col-right">
+                        <h3 style="margin-top:0; color:#c0392b; border-bottom:1px solid #ccc;">IL PAPIRO</h3>
+                        <div class="cart-testi" id="cart-papiro-testi">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -154,55 +202,53 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
         
         let clientSupabase;
-        try {
-            clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch(e) { console.error("Errore database", e); }
+        try { clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
 
         let idEventoSegreto = ""; 
+        let titoloFesteggiato = "";
+        let nomeVisuale = "";
         let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
 
         window.onload = function() {
             try {
                 const params = new URLSearchParams(window.location.search);
                 const idInvitato = params.get('id'); 
+                const titoloUrl = params.get('titolo');
                 if (idInvitato) {
                     idEventoSegreto = idInvitato;
+                    titoloFesteggiato = titoloUrl || "Dottore/ssa";
                     avviaApp(); 
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         };
 
         window.toggleAnonimo = function(inputId, checkbox) {
             let inputField = document.getElementById(inputId);
             inputField.disabled = checkbox.checked;
-            if(checkbox.checked) {
-                inputField.value = ''; 
-            }
+            if(checkbox.checked) inputField.value = ''; 
         };
 
         window.creaNuovaArea = function() {
             const nomePulito = document.getElementById('input-laureato').value.trim().toLowerCase().replace(/\s+/g, '');
             if(!nomePulito) return alert("Per favore, inserisci il nome del laureato!");
             
+            titoloFesteggiato = document.getElementById('input-titolo').value;
             const codiceSegreto = Math.random().toString(36).substring(2, 7); 
             idEventoSegreto = `${nomePulito}-${codiceSegreto}`;
             
-            try { window.history.pushState({}, '', `?id=${idEventoSegreto}`); } catch(err) {}
+            try { window.history.pushState({}, '', `?id=${idEventoSegreto}&titolo=${titoloFesteggiato}`); } catch(err) {}
             avviaApp();
         };
 
         window.esci = function() {
-            if(!confirm("Vuoi davvero uscire dall'area di questo evento?")) return;
+            if(!confirm("Vuoi uscire dall'area di questo evento?")) return;
             idEventoSegreto = "";
             try { window.history.pushState({}, '', window.location.pathname); } catch(err) {}
             
             document.getElementById('main-nav').style.display = 'none';
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            
-            let loginSec = document.getElementById('login-section');
-            loginSec.style.display = 'block';
-            loginSec.classList.add('active');
-            
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('login-section').classList.add('active');
             document.getElementById('input-laureato').value = '';
         };
 
@@ -215,13 +261,13 @@
             document.querySelector('.tab-link').classList.add('active'); 
             document.getElementById('home').classList.add('active');
             
-            let nomeVisuale = idEventoSegreto.split('-')[0];
-            nomeVisuale = nomeVisuale.charAt(0).toUpperCase() + nomeVisuale.slice(1);
+            let nomeRaw = idEventoSegreto.split('-')[0];
+            nomeVisuale = nomeRaw.charAt(0).toUpperCase() + nomeRaw.slice(1);
             
-            document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${nomeVisuale}`;
+            document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${titoloFesteggiato} ${nomeVisuale}`;
             
             let base_url = window.location.href.split('?')[0];
-            document.getElementById('share-link').value = `${base_url}?id=${idEventoSegreto}`;
+            document.getElementById('share-link').value = `${base_url}?id=${idEventoSegreto}&titolo=${titoloFesteggiato}`;
             caricaDati();
         };
 
@@ -230,6 +276,34 @@
             document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
+        };
+
+        // FUNZIONE CHE COMPONE L'ANTEPRIMA QUANDO SI CLICCA IL TASTO
+        window.apriAnteprima = function(el) {
+            apriSezione('anteprima', el);
+            
+            // Imposta Titolo
+            document.getElementById('cart-titolo').innerText = `CONGRATULAZIONI ${titoloFesteggiato.toUpperCase()} ${nomeVisuale.toUpperCase()}`;
+            
+            // Popola Papiro (prende gli aneddoti dall'array 'dati')
+            let testiHtml = "";
+            if(dati.papiro.length === 0) {
+                testiHtml = "<p><i>Nessun aneddoto inserito ancora. Dite agli amici di scrivere!</i></p>";
+            } else {
+                dati.papiro.forEach(p => {
+                    testiHtml += `<p>"${p.aneddoto}" <br><small><b>- ${p.autore}</b></small></p>`;
+                });
+            }
+            document.getElementById('cart-papiro-testi').innerHTML = testiHtml;
+
+            // Clona la griglia del cruciverba se esiste
+            let gridOriginale = document.querySelector('#crossword-container .cw-grid');
+            let boxMini = document.getElementById('cart-cruci-preview');
+            if(gridOriginale) {
+                boxMini.innerHTML = '';
+                let clonato = gridOriginale.cloneNode(true);
+                boxMini.appendChild(clonato);
+            }
         };
 
         window.caricaDati = async function() {
@@ -242,7 +316,7 @@
                     dati[t] = data || [];
                     aggiornaUI(t);
                 }
-            } catch (err) { console.error("Errore caricamento", err); }
+            } catch (err) {}
         };
 
         window.aggiungi = async function(tipo) {
@@ -261,7 +335,7 @@
 
             if (tipo === 'cruciverba') {
                 let parola = document.getElementById('cruci-parola').value.toUpperCase().replace(/[^A-Z]/g, '');
-                if (!parola || !campoTesto) return alert("Compila la parola e la definizione!");
+                if (!parola || !campoTesto) return alert("Compila parola e definizione!");
                 obj.parola = parola; obj.definizione = campoTesto;
             } else if (tipo === 'caricatura') {
                 if(!campoTesto) return alert("Scrivi l'idea!"); obj.idea_dettagliata = campoTesto;
@@ -272,7 +346,7 @@
             }
 
             const { error } = await clientSupabase.from(tipo).insert([obj]);
-            if(error) alert("Errore di salvataggio: " + error.message);
+            if(error) alert("Errore: " + error.message);
             else {
                 document.getElementById(testoId).value = ''; 
                 if(!autoreInput.disabled) autoreInput.value = ''; 
@@ -282,10 +356,7 @@
         };
 
         window.elimina = async function(tipo, id) {
-            if(confirm("Sei sicuro di voler eliminare questo elemento?")) { 
-                await clientSupabase.from(tipo).delete().eq('id', id); 
-                caricaDati(); 
-            }
+            if(confirm("Sei sicuro?")) { await clientSupabase.from(tipo).delete().eq('id', id); caricaDati(); }
         };
 
         window.votaRegalo = async function(id) {
@@ -295,7 +366,7 @@
 
         window.aggiornaUI = function(tipo) {
             const container = document.getElementById(`lista-${tipo}`);
-            container.innerHTML = dati[tipo].length ? '' : '<i>Nessun contributo inserito.</i>';
+            container.innerHTML = dati[tipo].length ? '' : '<i>Nessun contributo.</i>';
             dati[tipo].forEach(item => {
                 let txt = '';
                 if (tipo === 'cruciverba') txt = `<b>${item.parola}</b>: ${item.definizione}`;
@@ -347,7 +418,7 @@
                 return inter > 0 || placedWords.length === 0;
             }
 
-            let firstWord = words.shift(); // <- L'ERRORE CORRETTO!
+            let firstWord = words.shift();
             placeWord(firstWord, 30, 30 - Math.floor(firstWord.parola.length / 2), 'H');
 
             words.forEach(wordObj => {

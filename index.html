@@ -24,6 +24,10 @@
         nav { display: none; justify-content: center; gap: 10px; margin-top: -25px; background: var(--card-bg); padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); flex-wrap: wrap; z-index: 10; }
         nav button { background: transparent; border: none; padding: 10px 20px; border-radius: 20px; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.3s ease; }
         nav button:hover, nav button.active { background: var(--primary); color: white; }
+        
+        /* Stile speciale per il tasto Esci */
+        nav button.btn-esci { color: #e74c3c; }
+        nav button.btn-esci:hover { background: #e74c3c; color: white; }
 
         main { width: 90%; max-width: 800px; margin: 40px auto; }
         .section { display: none; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); animation: fadeIn 0.4s ease; }
@@ -33,12 +37,13 @@
         .badge-laureato { background: #e1f5fe; color: var(--primary); padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; display: inline-block; border: 1px solid var(--primary); }
 
         .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
 
         button.btn-submit { background-color: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; margin-bottom: 10px; transition: 0.3s; }
         button.btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
-        /* CRUCIVERBA ECO-FRIENDLY PER STAMPA */
+        /* CRUCIVERBA ECO-FRIENDLY */
         #crossword-container { margin-top: 20px; overflow-x: auto; text-align: center; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; }
         .cw-grid { border-collapse: collapse; margin: 0 auto; background: white; border: 2px solid #000; }
         .cw-cell { width: 35px; height: 35px; background: white; border: 1px solid #000; text-align: center; vertical-align: middle; position: relative; font-weight: bold; text-transform: uppercase; font-family: monospace; font-size: 18px; }
@@ -65,16 +70,17 @@
         <button class="tab-link" onclick="apriSezione('caricatura', this)">🎨 Caricatura</button>
         <button class="tab-link" onclick="apriSezione('papiro', this)">📜 Papiro</button>
         <button class="tab-link" onclick="apriSezione('regalo', this)">🎁 Regalo</button>
+        <button class="tab-link btn-esci" onclick="esci()">🚪 Esci</button>
     </nav>
 
     <main>
         <div id="login-section" class="section active">
             <h2>Chi festeggiamo oggi?</h2>
-            <p>Inserisci il nome del laureato o della laureata per iniziare.</p>
+            <p>Inserisci <b>Nome e Cognome</b> (tutto attaccato) per creare un'area unica ed evitare di mischiarti con altri laureati!</p>
             <div class="form-group">
-                <input type="text" id="input-laureato" placeholder="Esempio: Lisa">
+                <input type="text" id="input-laureato" placeholder="Es: LisaRossi">
             </div>
-            <button class="btn-submit" onclick="impostaLaureato()">Entra nell'area dedicata</button>
+            <button class="btn-submit" onclick="impostaLaureato()">Entra / Crea Area</button>
         </div>
 
         <div id="home" class="section">
@@ -84,7 +90,7 @@
             <div class="form-group">
                 <input type="text" id="share-link" readonly onclick="this.select(); document.execCommand('copy'); alert('Link copiato negli appunti!');">
             </div>
-            <p style="font-size: 0.9em; color: var(--text-muted);">Tutte le idee inserite in questo momento saranno associate automaticamente a questo laureato.</p>
+            <p style="font-size: 0.9em; color: var(--text-muted);">Tutte le idee inserite in questo momento saranno salvate in modo sicuro e associate a questo link unico.</p>
         </div>
 
         <div id="cruciverba" class="section">
@@ -124,14 +130,13 @@
     </main>
 
     <script>
-        // --- INIZIALIZZAZIONE UNICA E PULITA ---
         const SUPABASE_URL = 'https://dfjvdenqbokvtmsqyjsh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
         
         let clientSupabase;
         try {
             clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch(e) { console.error("Errore inizializzazione database", e); }
+        } catch(e) { console.error("Errore database", e); }
 
         let nomeLaureato = "";
         let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
@@ -148,11 +153,30 @@
         };
 
         window.impostaLaureato = function() {
-            const val = document.getElementById('input-laureato').value.trim();
-            if(!val) return alert("Per favore, inserisci il nome!");
+            // Rimuovo spazi vuoti in mezzo per creare un link unico pulito (es. Lisa Rossi -> lisarossi)
+            const val = document.getElementById('input-laureato').value.trim().replace(/\s+/g, '');
+            if(!val) return alert("Per favore, inserisci un identificativo (es. NomeCognome)!");
             nomeLaureato = val.toLowerCase();
             try { window.history.pushState({}, '', `?laureato=${nomeLaureato}`); } catch(err) {}
             avviaApp();
+        };
+
+        // NUOVA FUNZIONE ESCI
+        window.esci = function() {
+            nomeLaureato = "";
+            // Pulisce l'URL in alto togliendo il ?laureato=...
+            try { window.history.pushState({}, '', window.location.pathname); } catch(err) {}
+            
+            // Nasconde tutto e rimostra il login
+            document.getElementById('main-nav').style.display = 'none';
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            let loginSec = document.getElementById('login-section');
+            loginSec.style.display = 'block';
+            loginSec.classList.add('active');
+            
+            // Svuota l'input
+            document.getElementById('input-laureato').value = '';
         };
 
         window.avviaApp = function() {
@@ -160,10 +184,13 @@
             document.getElementById('main-nav').style.display = 'flex';
             
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            // Seleziona la tab Home e la evidenzia
+            document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-link').classList.add('active'); // La prima è la Home
             document.getElementById('home').classList.add('active');
             
-            let nomeFormattato = nomeLaureato.charAt(0).toUpperCase() + nomeLaureato.slice(1);
-            document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${nomeFormattato}`;
+            document.getElementById('display-laureato').innerText = `🎓 Area dedicata a: ${nomeLaureato.toUpperCase()}`;
             
             let base_url = window.location.href.split('?')[0];
             document.getElementById('share-link').value = `${base_url}?laureato=${nomeLaureato}`;
@@ -224,7 +251,10 @@
         };
 
         window.elimina = async function(tipo, id) {
-            if(confirm("Sei sicuro?")) { await clientSupabase.from(tipo).delete().eq('id', id); caricaDati(); }
+            if(confirm("Sei sicuro di voler eliminare questo elemento?")) { 
+                await clientSupabase.from(tipo).delete().eq('id', id); 
+                caricaDati(); 
+            }
         };
 
         window.votaRegalo = async function(id) {

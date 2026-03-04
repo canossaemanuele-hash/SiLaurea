@@ -94,11 +94,7 @@
             <div class="form-group"><textarea id="cruci-def" rows="2" placeholder="Scrivi qui la definizione (es. Lo beve sempre il venerdì)"></textarea></div>
             <button class="btn-submit" onclick="aggiungi('cruciverba')">Salva nel Database</button>
             <button class="btn-submit" style="background:#2c3e50" onclick="generaCruciverbaMagico()">🎲 Crea Griglia da Stampare</button>
-
-            <div id="crossword-wrapper" style="display: none; margin-top:30px;">
-                <div id="crossword-container"></div>
-                <div id="crossword-clues" class="cw-clues-container"></div>
-            </div>
+            <div id="crossword-wrapper" style="display: none; margin-top:30px;"><div id="crossword-container"></div><div id="crossword-clues" class="cw-clues-container"></div></div>
             <div class="lista-idee"><h3>Parole attuali:</h3><div id="lista-cruciverba"></div></div>
         </div>
 
@@ -128,44 +124,35 @@
     </main>
 
     <script>
-        // --- VARIABILI GLOBALI PROTETTE ---
-        let supabase = null;
+        // --- INIZIALIZZAZIONE UNICA E PULITA ---
+        const SUPABASE_URL = 'https://dfjvdenqbokvtmsqyjsh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
+        
+        let clientSupabase;
+        try {
+            clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) { console.error("Errore inizializzazione database", e); }
+
         let nomeLaureato = "";
         let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
 
-        // --- INIZIALIZZAZIONE AL CARICAMENTO ---
         window.onload = function() {
             try {
-                // Controllo se un AdBlocker ha bloccato Supabase
-                if (typeof window.supabase === 'undefined') {
-                    console.error("Libreria Supabase non trovata!");
-                    alert("⚠️ ATTENZIONE: Il tuo browser o il tuo Antivirus/AdBlocker ha bloccato il database. L'interfaccia funzionerà, ma i dati non verranno salvati su internet! Prova a disattivare l'AdBlocker.");
-                } else {
-                    const SUPABASE_URL = 'https://dfjvdenqbokvtmsqyjsh.supabase.co';
-                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmanZkZW5xYm9rdnRtc3F5anNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTM1MzAsImV4cCI6MjA4ODE4OTUzMH0.kOvBhb3bnJT562q8nOGJFwgf7Lf28soDV0yIhyF0BCI';
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                }
-
                 const params = new URLSearchParams(window.location.search);
                 const l = params.get('laureato');
                 if (l) {
                     nomeLaureato = l.toLowerCase();
                     avviaApp();
                 }
-            } catch(e) { console.error("Errore critico in onload", e); }
+            } catch(e) { console.error(e); }
         };
 
         window.impostaLaureato = function() {
-            try {
-                const val = document.getElementById('input-laureato').value.trim();
-                if(!val) return alert("Per favore, inserisci il nome!");
-                nomeLaureato = val.toLowerCase();
-                
-                // Provo ad aggiornare l'URL, ignoro l'errore se apro dal Desktop locale
-                try { window.history.pushState({}, '', `?laureato=${nomeLaureato}`); } catch(err) {}
-
-                avviaApp();
-            } catch(error) { alert("Errore del bottone: " + error); }
+            const val = document.getElementById('input-laureato').value.trim();
+            if(!val) return alert("Per favore, inserisci il nome!");
+            nomeLaureato = val.toLowerCase();
+            try { window.history.pushState({}, '', `?laureato=${nomeLaureato}`); } catch(err) {}
+            avviaApp();
         };
 
         window.avviaApp = function() {
@@ -180,7 +167,6 @@
             
             let base_url = window.location.href.split('?')[0];
             document.getElementById('share-link').value = `${base_url}?laureato=${nomeLaureato}`;
-            
             caricaDati();
         };
 
@@ -191,26 +177,21 @@
             el.classList.add('active');
         };
 
-        // --- GESTIONE DATABASE ---
         window.caricaDati = async function() {
-            if (!supabase) return; // Se è bloccato, non fa nulla
+            if (!clientSupabase) return; 
             try {
                 for (let t of ['cruciverba', 'caricatura', 'papiro', 'regalo']) {
-                    const { data, error } = await supabase.from(t).select('*').eq('laureato_tag', nomeLaureato).order('created_at', {ascending: false});
+                    const { data, error } = await clientSupabase.from(t).select('*').eq('laureato_tag', nomeLaureato).order('created_at', {ascending: false});
                     if (error) throw error;
-                    
-                    if (t === 'regalo' && data) {
-                        data.sort((a, b) => b.voti - a.voti);
-                    }
+                    if (t === 'regalo' && data) data.sort((a, b) => b.voti - a.voti);
                     dati[t] = data || [];
                     aggiornaUI(t);
                 }
-            } catch (err) { console.error("Errore caricamento dati:", err); }
+            } catch (err) { console.error("Errore caricamento", err); }
         };
 
         window.aggiungi = async function(tipo) {
-            if (!supabase) return alert("Database bloccato dall'AdBlocker, impossibile salvare.");
-
+            if (!clientSupabase) return alert("Database non connesso.");
             let autoreId = ''; let testoId = '';
             if (tipo === 'cruciverba') { autoreId = 'cruci-autore'; testoId = 'cruci-def'; }
             if (tipo === 'caricatura') { autoreId = 'cari-autore'; testoId = 'cari-idea'; }
@@ -233,38 +214,27 @@
                 if(!campoTesto) return alert("Scrivi la proposta!"); obj.proposta_regalo = campoTesto; obj.voti = 0;
             }
 
-            const { error } = await supabase.from(tipo).insert([obj]);
-            
+            const { error } = await clientSupabase.from(tipo).insert([obj]);
             if(error) alert("Errore di salvataggio: " + error.message);
             else {
-                document.getElementById(testoId).value = '';
-                document.getElementById(autoreId).value = '';
+                document.getElementById(testoId).value = ''; document.getElementById(autoreId).value = '';
                 if(tipo === 'cruciverba') document.getElementById('cruci-parola').value = '';
                 caricaDati();
             }
         };
 
         window.elimina = async function(tipo, id) {
-            if (!supabase) return;
-            if(confirm("Sei sicuro di voler eliminare?")) {
-                await supabase.from(tipo).delete().eq('id', id);
-                caricaDati();
-            }
+            if(confirm("Sei sicuro?")) { await clientSupabase.from(tipo).delete().eq('id', id); caricaDati(); }
         };
 
         window.votaRegalo = async function(id) {
-            if (!supabase) return;
             let item = dati.regalo.find(r => r.id === id);
-            if(item) {
-                await supabase.from('regalo').update({ voti: item.voti + 1 }).eq('id', id);
-                caricaDati();
-            }
+            if(item) { await clientSupabase.from('regalo').update({ voti: item.voti + 1 }).eq('id', id); caricaDati(); }
         };
 
         window.aggiornaUI = function(tipo) {
             const container = document.getElementById(`lista-${tipo}`);
             container.innerHTML = dati[tipo].length ? '' : '<i>Nessun contributo inserito.</i>';
-            
             dati[tipo].forEach(item => {
                 let txt = '';
                 if (tipo === 'cruciverba') txt = `<b>${item.parola}</b>: ${item.definizione}`;
@@ -272,29 +242,15 @@
                 if (tipo === 'papiro') txt = item.aneddoto;
                 if (tipo === 'regalo') txt = item.proposta_regalo;
 
-                let extraBtn = '';
-                if (tipo === 'regalo') {
-                    extraBtn = `<br><button class="vote-btn" onclick="votaRegalo(${item.id})">👍 Vota (${item.voti || 0})</button>`;
-                }
-
-                container.innerHTML += `
-                    <div class="idea-card">
-                        <button class="btn-del" title="Elimina" onclick="elimina('${tipo}', ${item.id})">🗑️</button>
-                        <b>${item.autore}</b> ha scritto:<br>
-                        ${txt}
-                        ${extraBtn}
-                    </div>
-                `;
+                let extraBtn = (tipo === 'regalo') ? `<br><button class="vote-btn" onclick="votaRegalo(${item.id})">👍 Vota (${item.voti || 0})</button>` : '';
+                container.innerHTML += `<div class="idea-card"><button class="btn-del" title="Elimina" onclick="elimina('${tipo}', ${item.id})">🗑️</button><b>${item.autore}</b> ha scritto:<br>${txt}${extraBtn}</div>`;
             });
         };
 
-        // --- ALGORITMO CRUCIVERBA ---
         window.generaCruciverbaMagico = function() {
             if(dati.cruciverba.length < 2) return alert("Inserisci almeno 2 parole!");
-            
             document.getElementById('crossword-wrapper').style.display = 'block';
             let words = [...dati.cruciverba].sort((a,b) => b.parola.length - a.parola.length);
-            
             const SIZE = 60; let grid = Array(SIZE).fill(null).map(() => Array(SIZE).fill(null));
             let placedWords = [];
 
@@ -343,9 +299,7 @@
                                 let nR = p.dir==='H' ? p.r-j : p.r+i;
                                 let nC = p.dir==='H' ? p.c+i : p.c-j;
                                 let nDir = p.dir==='H' ? 'V' : 'H';
-                                if (canPlace(wordObj.parola, nR, nC, nDir)) {
-                                    placeWord(wordObj, nR, nC, nDir); placed = true; break;
-                                }
+                                if (canPlace(wordObj.parola, nR, nC, nDir)) { placeWord(wordObj, nR, nC, nDir); placed = true; break; }
                             }
                         }
                         if (placed) break;
@@ -392,10 +346,7 @@
             htmlTable += '</table>';
 
             document.getElementById('crossword-container').innerHTML = htmlTable;
-            document.getElementById('crossword-clues').innerHTML = `
-                <div class="cw-clues-col"><h4>➡️ ORIZZONTALI</h4>${orizz.join('<br><br>')}</div>
-                <div class="cw-clues-col"><h4>⬇️ VERTICALI</h4>${verti.join('<br><br>')}</div>
-            `;
+            document.getElementById('crossword-clues').innerHTML = `<div class="cw-clues-col"><h4>➡️ ORIZZONTALI</h4>${orizz.join('<br><br>')}</div><div class="cw-clues-col"><h4>⬇️ VERTICALI</h4>${verti.join('<br><br>')}</div>`;
         };
     </script>
 </body>

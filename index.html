@@ -231,8 +231,10 @@
 
         <div id="caricatura" class="section">
             <h2>🎨 Caricatura e Foto</h2>
+            
             <div class="box-gratis">
                 <h3 style="margin-top:0;">Opzione Base (Gratis)</h3>
+                <p style="font-size:13px; color:#555; margin-top:0;">Se volete fare da soli, caricate una foto dal telefono.</p>
                 <label class="custom-file-upload"><input type="file" accept="image/*" onchange="comprimiESalvaFoto(event, 'preview-foto')">📸 Scegli Foto Base</label>
                 <div id="container-preview-foto" style="display:none; text-align:center; margin-top:10px;"><img id="preview-foto" style="max-height: 150px; border-radius: 8px;"></div>
             </div>
@@ -243,20 +245,25 @@
             </div>
 
             <div id="premium-form-area" class="premium-form-container">
-                <p style="font-size:13px; color:#555; margin-top:0;">Carica 2 foto chiare del viso per il nostro artista!</p>
+                <label style="font-size:13px; color:#555; font-weight:bold;">1. Scrivi come dobbiamo disegnarlo (Obbligatorio):</label>
+                <textarea id="premium-istruzioni" rows="2" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 13px; margin-top:5px; margin-bottom:15px; box-sizing:border-box;" placeholder="Es: Vestito da Batman, con in mano uno spritz e una pergamena..."></textarea>
+                
+                <label style="font-size:13px; color:#555; font-weight:bold; display:block; margin-bottom:5px;">2. Carica 2 foto chiare del viso:</label>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <div style="flex:1;"><label class="custom-file-upload" style="padding:10px;"><input type="file" accept="image/*" onchange="comprimiESalvaFoto(event, 'ref-1')">📸 Foto 1</label></div>
                     <div style="flex:1;"><label class="custom-file-upload" style="padding:10px;"><input type="file" accept="image/*" onchange="comprimiESalvaFoto(event, 'ref-2')">📸 Foto 2</label></div>
                 </div>
                 <div style="display:flex; gap:10px; justify-content:center; margin-bottom:15px;"><img id="ref-1" class="preview-img-mini"><img id="ref-2" class="preview-img-mini"></div>
-                <button class="btn-submit" style="background:#f39c12;" onclick="confermaPremium()">✅ Invia Foto all'Artista</button>
+                
+                <button class="btn-submit" style="background:#f39c12;" onclick="confermaPremium()">✅ Conferma Ordine Premium</button>
             </div>
             
             <hr style="border-top: 1px solid #ddd; margin: 30px 0;">
             
-            <h3>💡 Proponi Idee per il Disegno</h3>
+            <h3>💡 Brainstorming (Spazio libero)</h3>
+            <p style="font-size:13px; color:#555; margin-top:0;">Usate questa sezione per scambiarvi idee e scherzi. Se non comprate la caricatura, rimarranno come appunti per chi impagina il cartellone!</p>
             <div class="form-group row-autore"><input type="text" id="cari-autore" placeholder="Il tuo nome"><label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('cari-autore', this)"> Anonimo</label></div>
-            <div class="form-group"><textarea id="cari-idea" rows="2" placeholder="Es: Vestito da Spiderman..."></textarea></div>
+            <div class="form-group"><textarea id="cari-idea" rows="2" placeholder="Scrivi un'idea o una battuta..."></textarea></div>
             <button class="btn-submit" onclick="aggiungi('caricatura')">Salva Idea</button>
             <h3 style="margin-top:20px;">Idee raccolte:</h3>
             <div id="lista-caricatura"></div>
@@ -414,7 +421,6 @@
             if (!clientSupabase) return;
 
             try {
-                // Recuperiamo tutto dalla tabella caricatura per trovare Date, Ordini e Idee
                 const { data, error } = await clientSupabase
                     .from('caricatura')
                     .select('*')
@@ -422,7 +428,6 @@
                     
                 if (error) throw error;
 
-                // Raggruppiamo i risultati per nome evento (tag)
                 let gruppi = {};
                 data.forEach(item => {
                     if (!gruppi[item.laureato_tag]) {
@@ -444,25 +449,23 @@
                     
                     gruppi[tag].forEach(c => {
                         if (c.autore === "INFO EVENTO") {
-                            // Qui c'è salvata la data della festa
                             html += `<p style="color:#27ae60; font-weight:bold; font-size:15px; margin-top:0;">📅 ${c.idea_dettagliata}</p>`;
                             haFotoOOrdini = true;
                         }
                         else if (c.autore === "ORDINE ACQUISTATO") {
-                            // Qui c'è salvato l'ordine del PDF e l'eventuale indirizzo
                             html += `<div style="background:#e8f8f5; border:1px solid #27ae60; padding:10px; border-radius:8px; margin-bottom:10px;">
                                         <b style="color:#27ae60;">📦 NUOVO ORDINE CONFERMATO:</b><br>${c.idea_dettagliata}
                                      </div>`;
                             haFotoOOrdini = true;
                         }
-                        else if (c.autore === "ORDINE PREMIUM (FOTO)") {
-                            // Qui ci sono le foto per la caricatura
+                        else if (c.autore === "ORDINE PREMIUM (FOTO + IDEE)") {
                             haFotoOOrdini = true;
                             try {
                                 let obj = JSON.parse(c.idea_dettagliata);
                                 html += `
                                 <div style="background:#fffdf5; border:1px solid #f1c40f; padding:10px; border-radius:8px; margin-bottom:10px;">
-                                    <b>👑 FOTO PREMIUM RICEVUTE:</b>
+                                    <b style="color:#d35400;">👑 ORDINE CARICATURA PREMIUM:</b>
+                                    <p style="margin:5px 0; font-size: 14px;"><b>Istruzioni cliente:</b> ${obj.istruzioni}</p>
                                     <div class="admin-photo-grid">
                                         <img src="${obj.f1}">
                                         <img src="${obj.f2}">
@@ -472,8 +475,7 @@
                                 html += `<p style="color:red;">Errore decodifica foto.</p>`; 
                             }
                         } else {
-                            // Queste sono le idee normali degli amici
-                            html += `<li><b>Idea (${c.autore}):</b> ${c.idea_dettagliata}</li>`;
+                            html += `<li><b>Idea extra (${c.autore}):</b> ${c.idea_dettagliata}</li>`;
                         }
                     });
                     
@@ -489,32 +491,29 @@
             }
         };
 
-        // Funzione per eliminare interamente una festa dal database
         window.eliminaEventoAdmin = async function(tag) {
-            let conferma = confirm(`⚠️ ATTENZIONE ESTREMA ⚠️\nVuoi davvero eliminare TUTTO l'evento "${tag}"?\nQuesta azione non si può annullare e cancellerà tutti i testi, le foto e i regali dal database.`);
+            let conferma = confirm(`⚠️ ATTENZIONE ESTREMA ⚠️\nVuoi davvero eliminare TUTTO l'evento "${tag}"?\nQuesta azione non si può annullare.`);
             
             if (conferma && clientSupabase) {
-                // Cancella da tutte e 4 le tabelle dove il tag corrisponde
                 await clientSupabase.from('cruciverba').delete().eq('laureato_tag', tag);
                 await clientSupabase.from('caricatura').delete().eq('laureato_tag', tag);
                 await clientSupabase.from('papiro').delete().eq('laureato_tag', tag);
                 await clientSupabase.from('regalo').delete().eq('laureato_tag', tag);
                 
-                alert(`Evento ${tag} eliminato con successo dai server!`);
-                caricaTuttoAdmin(); // Ricarica la lista aggiornata
+                alert(`Evento ${tag} eliminato con successo!`);
+                caricaTuttoAdmin();
             }
         };
 
         // ==========================================
-        // 3. INIZIALIZZAZIONE E CREAZIONE EVENTO (CON DATA)
+        // 3. INIZIALIZZAZIONE E CREAZIONE EVENTO
         // ==========================================
         window.onload = function() {
-            // Imposta limite date (Minimo oggi, Massimo tra 10 mesi)
             let dataInput = document.getElementById('input-data-festa');
             if (dataInput) {
                 let oggi = new Date();
                 let massimo = new Date();
-                massimo.setMonth(massimo.getMonth() + 10); // Massimo 10 mesi avanti
+                massimo.setMonth(massimo.getMonth() + 10);
                 
                 dataInput.min = oggi.toISOString().split("T")[0];
                 dataInput.max = massimo.toISOString().split("T")[0];
@@ -543,7 +542,6 @@
             
             idEventoSegreto = `${nomePulito}-${Math.random().toString(36).substring(2, 7)}`;
             
-            // Salviamo la DATA nel database così tu la vedi nell'admin
             if (clientSupabase) {
                 let dataSplittata = dataFesta.split('-');
                 let dataItaliana = `${dataSplittata[2]}/${dataSplittata[1]}/${dataSplittata[0]}`;
@@ -592,7 +590,7 @@
         };
 
         // ==========================================
-        // 4. GESTIONE CARICATURA E FOTO
+        // 4. GESTIONE CARICATURA PREMIUM E FOTO
         // ==========================================
         window.togglePremiumForm = function() {
             let form = document.getElementById('premium-form-area'); 
@@ -604,24 +602,31 @@
         };
 
         window.confermaPremium = async function() {
-            let ref1 = document.getElementById('ref-1').src; 
-            let ref2 = document.getElementById('ref-2').src;
+            let ref1 = document.getElementById('ref-1'); 
+            let ref2 = document.getElementById('ref-2');
+            let istruzioni = document.getElementById('premium-istruzioni').value.trim();
+            
+            if(!istruzioni) return alert("⚠️ Scrivi le istruzioni per l'artista!");
+            if(ref1.style.display !== 'inline-block' || ref2.style.display !== 'inline-block') {
+                return alert("⚠️ Carica entrambe le foto del viso per procedere!");
+            }
             
             if (clientSupabase) {
                 let jsonPayload = JSON.stringify({ 
-                    note: "FOTO CARICATE PER LA CARICATURA", 
-                    f1: ref1, 
-                    f2: ref2 
+                    note: "ORDINE PREMIUM (FOTO + IDEE)", 
+                    istruzioni: istruzioni,
+                    f1: ref1.src, 
+                    f2: ref2.src 
                 });
                 await clientSupabase.from('caricatura').insert([{ 
-                    autore: "ORDINE PREMIUM (FOTO)", 
+                    autore: "ORDINE PREMIUM (FOTO + IDEE)", 
                     idea_dettagliata: jsonPayload, 
                     laureato_tag: idEventoSegreto 
                 }]);
             }
             
             document.getElementById('radio-premium-img').checked = true;
-            alert("✅ Foto inviate! L'opzione Premium è stata selezionata nel carrello.");
+            alert("✅ Istruzioni e Foto inviate all'artista!\nL'opzione Premium è stata selezionata in automatico nel carrello.");
             togglePremiumForm();
         };
 
@@ -752,8 +757,8 @@
             container.innerHTML = dati[tipo].map(item => {
                 let txt = tipo === 'cruciverba' ? `<b>${item.parola}</b>: ${item.definizione}` : (item.idea_dettagliata || item.aneddoto || item.proposta_regalo);
                 
-                // Nasconde dalla lista pubblica i dati dell'Admin
-                if (txt && (txt.startsWith('{"note":') || txt.startsWith('Data della festa:') || txt.startsWith('Formato scelto:'))) return ""; 
+                // Nasconde dalla lista pubblica i dati strutturati dell'Admin
+                if (txt && (txt.startsWith('{"note":') || txt.startsWith('Data della festa:') || txt.startsWith('Formato:'))) return ""; 
                 
                 let extraBtn = (tipo === 'regalo') ? `<br><button class="vote-btn" onclick="votaRegalo(${item.id})">👍 Vota (${item.voti || 0})</button>` : '';
                 
@@ -1213,6 +1218,7 @@
             }
             
             setTimeout(async () => {
+                // Togliamo la filigrana e mettiamo in modalità stampa
                 document.getElementById('anteprima').classList.remove('preview-mode'); 
                 document.getElementById('anteprima').classList.add('stampa-mode');
                 
@@ -1236,7 +1242,7 @@
                     
                     // Avviso FINALE differenziato in base a spedizione o no
                     if (costoFmt === 34.90) {
-                        alert("✅ Pagamento confermato!\nIl file PDF in Alta Risoluzione è stato salvato sul tuo telefono/computer.\n\n⚠️ IMPORTANTE: Inviaci il PDF appena scaricato via WhatsApp o Email per permetterci di stamparlo e spedirlo al tuo indirizzo!");
+                        alert("✅ Pagamento confermato!\nIl file PDF in Alta Risoluzione è stato scaricato sul tuo dispositivo.\n\n⚠️ IMPORTANTE: Inviaci il PDF appena scaricato via WhatsApp o Email per permetterci di stamparlo e spedirlo al tuo indirizzo!");
                     } else {
                         alert("✅ Pagamento confermato! Il PDF in Alta Risoluzione è stato scaricato.\nGrazie per aver usato SiLaurea App!");
                     }

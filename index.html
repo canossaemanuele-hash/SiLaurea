@@ -16,7 +16,6 @@
             --primary: #2980b9; 
             --primary-hover: #1f618d;
             --accent: #f39c12;
-            --accent-hover: #d68910;
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-main: #2c3e50;
@@ -27,7 +26,6 @@
         header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; width: 100%; text-align: center; padding: 2rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         h1 { margin: 0; font-weight: 700; letter-spacing: 1px; }
 
-        /* Navigazione */
         nav { display: none; justify-content: center; gap: 8px; margin-top: -25px; background: var(--card-bg); padding: 10px 15px; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); flex-wrap: wrap; z-index: 10; }
         nav button { background: transparent; border: none; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.3s ease; }
         nav button:hover, nav button.active { background: var(--primary); color: white; }
@@ -49,21 +47,24 @@
         button.btn-submit { background-color: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; margin-bottom: 10px; transition: 0.3s; }
         button.btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
-        /* UPSELL BANNER INTERATTIVO */
+        /* LISTE E CARD (RIPRISTINATE CON BOTTONI) */
+        .idea-card { background: #f9f9f9; border-left: 4px solid var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative; word-wrap: break-word; }
+        .btn-del { position: absolute; right: 10px; top: 10px; background: none; border: none; cursor: pointer; color: #e74c3c; font-weight: bold; font-size: 18px; }
+        .vote-btn { background: white; border: 1px solid #ddd; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; color: var(--text-main); margin-top: 10px; display: inline-block; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+        .vote-btn:hover { background: #eaf2f8; border-color: var(--primary); color: var(--primary); transform: translateY(-1px);}
+
+        /* UPSELL BANNER E FOTO */
         .box-gratis { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .upsell-banner { background: linear-gradient(135deg, #fffdf5 0%, #fcf3cf 100%); border: 2px solid #f1c40f; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(241, 196, 15, 0.2); }
         .upsell-banner:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(241, 196, 15, 0.3); }
         .upsell-banner h3 { margin: 0 0 5px 0; color: #d35400; font-size: 18px; }
         .upsell-banner p { margin: 0; font-size: 13px; color: #7f8c8d; }
         
-        /* Form Premium Espandibile */
         .premium-form-container { display: none; background: #fffdf5; border: 2px solid #f1c40f; border-top: none; padding: 15px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; margin-top: -10px; animation: fadeIn 0.3s ease; }
-
         .custom-file-upload { border: 2px dashed var(--primary); display: inline-block; padding: 15px; cursor: pointer; border-radius: 8px; color: var(--primary); font-weight: bold; width: 100%; text-align: center; box-sizing: border-box; background: #f4f9fc; transition: 0.3s; }
         .custom-file-upload:hover { background: #eaf2f8; }
         input[type="file"] { display: none; }
-
-        .preview-img-mini { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; display: none; }
+        .preview-img-mini { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; display: none; }
 
         /* CRUCIVERBA */
         #crossword-container { margin-top: 20px; overflow-x: auto; text-align: center; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; }
@@ -94,24 +95,19 @@
         
         .drag-box { position: absolute; background: transparent; border: 2px dashed #3498db; display: flex; flex-direction: column; min-width: 50px; min-height: 40px; box-sizing: border-box; transition: top 0.4s ease, left 0.4s ease, width 0.4s ease; }
         .drag-box:hover { z-index: 100; background: rgba(255,255,255,0.7); }
-        
         .drag-handle { background: #3498db; padding: 2px 6px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: move; touch-action: none; height: 22px; }
         .drag-handle button { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 5px; line-height: 1; }
-        
         .drag-content { position: relative; flex: 1; overflow: hidden; outline: none; background: transparent; }
         .drag-content[contenteditable="true"]:focus { background: rgba(255, 253, 231, 0.9); }
         .zoom-fit { position: absolute; top: 0; left: 0; transform-origin: top left; width: max-content; height: max-content; }
         
-        /* Stili Interni Cartellone */
         .drag-content .cw-grid { border: 2px solid #000; margin: 0; background: white; }
         .drag-content .cw-cell { width: 40px; height: 40px; font-size: 20px; }
         .drag-content .cw-empty { width: 40px; height: 40px; }
-        
         .cart-titolo-txt { font-size: 45px; text-align: center; font-weight: bold; text-transform: uppercase; line-height: 1.1; margin: 0; white-space: nowrap; padding: 5px; }
         .cart-papiro-txt { font-size: 18px; text-align: justify; width: 450px; padding: 10px; box-sizing: border-box; }
         .cart-caricatura-ph { width: 300px; height: 400px; border: 3px dashed #bdc3c7; display: flex; align-items: center; justify-content: center; color: #7f8c8d; background: #f9f9f9; text-align: center; font-size: 24px; box-sizing: border-box; overflow: hidden;}
         .cart-caricatura-ph img { width: 100%; height: 100%; object-fit: cover; }
-
         .resize-handle { position: absolute; bottom: -3px; right: -3px; width: 30px; height: 30px; background: linear-gradient(135deg, transparent 50%, var(--primary) 50%); cursor: nwse-resize; z-index: 10; touch-action: none; border-bottom-right-radius: 4px; }
 
         /* MODALITÀ ESPORTAZIONE / STAMPA */
@@ -179,17 +175,20 @@
             </div>
             <div class="form-group"><input type="text" id="cruci-parola" placeholder="Parola (es. SPRITZ)"></div>
             <div class="form-group"><textarea id="cruci-def" rows="2" placeholder="Definizione..."></textarea></div>
-            <button class="btn-submit" onclick="aggiungi('cruciverba')">Salva</button>
+            <button class="btn-submit" onclick="aggiungi('cruciverba')">Salva Parola</button>
             <button class="btn-submit" style="background:#2c3e50" onclick="generaCruciverbaMagico()">🎲 Crea Griglia da Stampare</button>
             <div id="crossword-wrapper" style="display: none; margin-top:30px;"><div id="crossword-container"></div><div id="crossword-clues"></div></div>
+            
+            <h3 style="margin-top:30px; border-bottom: 2px solid #eee; padding-bottom:5px;">Parole inserite dagli amici:</h3>
+            <div id="lista-cruciverba"></div>
         </div>
 
         <div id="caricatura" class="section">
-            <h2>🎨 Sezione Immagini</h2>
+            <h2>🎨 Caricatura e Foto</h2>
             
             <div class="box-gratis">
                 <h3 style="margin-top:0;">Opzione Base (Gratis)</h3>
-                <p style="font-size:13px; color:#555;">Carica una foto divertente dal telefono. Sarà inserita automaticamente al centro del cartellone.</p>
+                <p style="font-size:13px; color:#555;">Carica una foto divertente dal telefono. Sarà inserita al centro del cartellone.</p>
                 <label class="custom-file-upload">
                     <input type="file" accept="image/*" onchange="comprimiESalvaFoto(event, 'preview-foto')">
                     📸 Scegli Foto Base
@@ -202,17 +201,12 @@
 
             <div class="upsell-banner" id="btn-open-premium" onclick="togglePremiumForm()">
                 <h3>👑 Richiedi Caricatura Premium AI (+9,90€)</h3>
-                <p>Clicca qui per dare istruzioni ai nostri artisti e caricare le foto del viso!</p>
+                <p>Vuoi rendere il cartellone epico? Fai fare il disegno ai nostri artisti!</p>
                 <div style="font-size:24px; margin-top:5px;">👇</div>
             </div>
 
             <div id="premium-form-area" class="premium-form-container">
-                <div class="form-group">
-                    <label>Descrivi la tua idea:</label>
-                    <textarea id="cari-idea" rows="3" placeholder="Es: Vestito da Spiderman con una corona d'alloro e uno spritz in mano..."></textarea>
-                </div>
-                
-                <label style="font-weight:600; font-size:14px; display:block; margin-bottom:5px;">Carica 2 foto chiare del viso (Referenze):</label>
+                <p style="font-size:13px; color:#555; margin-top:0;">Carica 2 foto chiare del viso del festeggiato. Useremo le idee più belle proposte qui sotto per realizzare il disegno!</p>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <div style="flex:1;">
                         <label class="custom-file-upload" style="padding:10px; font-size:13px;">
@@ -227,14 +221,26 @@
                         </label>
                     </div>
                 </div>
-                
                 <div style="display:flex; gap:10px; justify-content:center; margin-bottom:15px;">
                     <img id="ref-1" class="preview-img-mini">
                     <img id="ref-2" class="preview-img-mini">
                 </div>
-
-                <button class="btn-submit" style="background:#f39c12; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);" onclick="inviaRichiestaPremium()">✅ Salva Richiesta Premium</button>
+                <button class="btn-submit" style="background:#f39c12; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);" onclick="confermaPremium()">✅ Conferma Foto e Attiva Premium</button>
             </div>
+
+            <hr style="border:0; border-top: 1px solid #ddd; margin: 30px 0;">
+
+            <h3>💡 Proponi Idee per il Disegno</h3>
+            <p style="font-size:13px; color:#555;">Scrivi come vorresti che fosse disegnato (es. "Vestito da Spiderman con uno spritz in mano").</p>
+            <div class="form-group row-autore">
+                <input type="text" id="cari-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('cari-autore', this)"> Anonimo</label>
+            </div>
+            <div class="form-group"><textarea id="cari-idea" rows="2" placeholder="La tua idea..."></textarea></div>
+            <button class="btn-submit" onclick="aggiungi('caricatura')">Salva Idea</button>
+            
+            <h3 style="margin-top:20px; border-bottom: 2px solid #eee; padding-bottom:5px;">Idee raccolte:</h3>
+            <div id="lista-caricatura"></div>
         </div>
 
         <div id="papiro" class="section">
@@ -245,14 +251,22 @@
             </div>
             <div class="form-group"><textarea id="papiro-aneddoto" rows="3" placeholder="Scrivi un aneddoto..."></textarea></div>
             <button class="btn-submit" onclick="aggiungi('papiro')">Aggiungi al Papiro</button>
-            <div class="lista-idee"><div id="lista-papiro"></div></div>
+            
+            <h3 style="margin-top:30px; border-bottom: 2px solid #eee; padding-bottom:5px;">Aneddoti inseriti:</h3>
+            <div id="lista-papiro"></div>
         </div>
 
         <div id="regalo" class="section">
             <h2>🎁 Regalo</h2>
+            <div class="form-group row-autore">
+                <input type="text" id="reg-autore" placeholder="Il tuo nome">
+                <label class="anonimo-check"><input type="checkbox" onchange="toggleAnonimo('reg-autore', this)"> Anonimo</label>
+            </div>
             <div class="form-group"><textarea id="reg-idea" rows="2" placeholder="Cosa regaliamo?"></textarea></div>
             <button class="btn-submit" onclick="aggiungi('regalo')">Proponi Regalo</button>
-            <div class="lista-idee"><div id="lista-regalo"></div></div>
+            
+            <h3 style="margin-top:30px; border-bottom: 2px solid #eee; padding-bottom:5px;">Idee Regalo (Votate dagli amici):</h3>
+            <div id="lista-regalo"></div>
         </div>
 
         <div id="anteprima" class="section" style="padding:15px;">
@@ -302,12 +316,10 @@
             </label>
 
             <div style="margin-top:20px; margin-bottom: 10px; font-weight: bold; font-size: 14px;">2. Scegli il Formato:</div>
-            
             <label class="checkout-option">
                 <div><input type="radio" name="chk-fmt" value="4.90" checked onchange="calcolaTotale()"> <span class="chk-title">Solo File PDF (Altissima Definizione)</span></div>
                 <span class="chk-price">4,90€</span>
             </label>
-            
             <label class="checkout-option" style="border-color:#2980b9; background:#f4f9fc;">
                 <div><input type="radio" name="chk-fmt" value="34.90" onchange="calcolaTotale()"> <span class="chk-title">📦 Stampa & Spedizione a Casa</span><br><span style="font-size:11px; color:#777; margin-left:25px;">(Ricevi il 70x100 pronto in 48h)</span></div>
                 <span class="chk-price">34,90€</span>
@@ -331,7 +343,7 @@
 
         let idEventoSegreto = ""; 
         let nomeVisuale = "";
-        let dati = { cruciverba: [], papiro: [], regalo: [] };
+        let dati = { cruciverba: [], caricatura: [], papiro: [], regalo: [] };
         
         let currentZoom = 1.0;
         let currentLayoutIndex = 0; 
@@ -406,22 +418,9 @@
             }
         };
 
-        window.inviaRichiestaPremium = async function() {
-            let idea = document.getElementById('cari-idea').value;
-            let ref1 = document.getElementById('ref-1').src;
-            let ref2 = document.getElementById('ref-2').src;
-            
-            if(!idea) return alert("Scrivi almeno un'idea per la caricatura!");
-            
-            // Salvo nel DB l'idea testuale
-            if(clientSupabase) {
-                await clientSupabase.from('caricatura').insert([{ autore: "Organizzatore", idea_dettagliata: idea, laureato_tag: idEventoSegreto }]);
-            }
-            
-            // Auto-seleziono l'opzione premium nel carrello
+        window.confermaPremium = function() {
             document.getElementById('radio-premium-img').checked = true;
-            
-            alert("✅ Richiesta Premium salvata! Procedi all'acquisto finale dalla Lavagna per confermare l'ordine.");
+            alert("✅ Foto referenze salvate!\nL'opzione Premium è stata selezionata in automatico nel carrello. I nostri artisti leggeranno le idee proposte qui sotto!");
             togglePremiumForm();
         };
 
@@ -452,12 +451,10 @@
                     
                     let compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
                     
-                    // Assegna l'immagine al target corretto
                     let targetElement = document.getElementById(targetImgId);
                     targetElement.src = compressedBase64;
                     targetElement.style.display = 'inline-block';
                     
-                    // Se è la foto base gratis, la salvo anche per il cartellone
                     if(targetImgId === 'preview-foto') {
                         fotoCaricataBase64 = compressedBase64;
                         localStorage.setItem('foto_' + idEventoSegreto, compressedBase64);
@@ -465,6 +462,22 @@
                     }
                 };
             };
+        };
+
+        // --- GESTIONE ELIMINAZIONE E VOTI (RIPRISTINATI) ---
+        window.elimina = async function(tipo, id) {
+            if(confirm("Sei sicuro di voler eliminare questo elemento?")) { 
+                await clientSupabase.from(tipo).delete().eq('id', id); 
+                caricaDati(); 
+            }
+        };
+
+        window.votaRegalo = async function(id) {
+            let item = dati.regalo.find(r => r.id === id);
+            if(item) { 
+                await clientSupabase.from('regalo').update({ voti: (item.voti || 0) + 1 }).eq('id', id); 
+                caricaDati(); 
+            }
         };
 
 
@@ -512,10 +525,6 @@
             if(currentZoom > 1) currentZoom = 1;
             applicaZoomCorrente();
             aggiornaDatiAnteprima();
-        };
-
-        window.toggleStampa = function() {
-            document.getElementById('anteprima').classList.toggle('stampa-mode');
         };
 
         window.cambiaStile = function() {
@@ -702,40 +711,83 @@
             }, 2000); 
         };
 
-        // --- CARICAMENTO DATI BASE ---
+        // --- CARICAMENTO DATI E LISTE (RIPRISTINATE PERFETTAMENTE) ---
         window.caricaDati = async function() {
             if (!clientSupabase) return; 
-            for (let t of ['cruciverba', 'papiro', 'regalo']) {
-                const { data } = await clientSupabase.from(t).select('*').eq('laureato_tag', idEventoSegreto).order('created_at', {ascending: false});
-                if (t === 'regalo' && data) data.sort((a, b) => b.voti - a.voti);
-                dati[t] = data || [];
-                aggiornaUI(t);
-            }
+            try {
+                for (let t of ['cruciverba', 'caricatura', 'papiro', 'regalo']) {
+                    const { data, error } = await clientSupabase.from(t).select('*').eq('laureato_tag', idEventoSegreto).order('created_at', {ascending: false});
+                    if (error) { continue; }
+                    if (t === 'regalo' && data) data.sort((a, b) => b.voti - a.voti);
+                    dati[t] = data || [];
+                    aggiornaUI(t);
+                }
+            } catch (err) { console.error(err); }
         };
 
         window.aggiungi = async function(tipo) {
-            let autId = tipo.substring(0,3) + '-autore';
-            let testoId = tipo==='cruciverba' ? 'cruci-def' : (tipo==='papiro' ? 'papiro-aneddoto' : 'reg-idea');
-            let autInput = document.getElementById(autId);
-            let aut = autInput && autInput.disabled ? "Anonimo" : (autInput ? autInput.value.trim() || "Anonimo" : "Anonimo");
+            let autoreId = tipo.substring(0,3) + '-autore';
+            let testoId = tipo==='cruciverba' ? 'cruci-def' : (tipo==='caricatura' ? 'cari-idea' : (tipo==='papiro' ? 'papiro-aneddoto' : 'reg-idea'));
+            let autInput = document.getElementById(autoreId);
+            
+            // Gestione nome anonimo corretta
+            let aut = "Anonimo";
+            if (autInput && !autInput.disabled && autInput.value.trim() !== "") {
+                aut = autInput.value.trim();
+            }
+            
             let testo = document.getElementById(testoId).value.trim();
+            if(!testo) return alert("Inserisci del testo!");
             
             let obj = { autore: aut, laureato_tag: idEventoSegreto };
-            if (tipo === 'cruciverba') { obj.parola = document.getElementById('cruci-parola').value.toUpperCase().replace(/[^A-Z]/g, ''); obj.definizione = testo; }
+            
+            if (tipo === 'cruciverba') {
+                let parola = document.getElementById('cruci-parola').value.toUpperCase().replace(/[^A-Z]/g, '');
+                if(!parola) return alert("Inserisci la parola del cruciverba!");
+                obj.parola = parola; 
+                obj.definizione = testo;
+            } 
+            else if (tipo === 'caricatura') obj.idea_dettagliata = testo;
             else if (tipo === 'papiro') obj.aneddoto = testo;
             else { obj.proposta_regalo = testo; obj.voti = 0; }
 
             await clientSupabase.from(tipo).insert([obj]);
+            
             document.getElementById(testoId).value = ''; 
             if(autInput && !autInput.disabled) autInput.value = ''; 
             if(tipo === 'cruciverba') document.getElementById('cruci-parola').value = '';
+            
             caricaDati();
         };
 
         window.aggiornaUI = function(tipo) {
             const container = document.getElementById(`lista-${tipo}`);
             if(!container) return;
-            container.innerHTML = dati[tipo].map(item => `<div class="idea-card"><b>${item.autore}</b>: ${tipo === 'cruciverba' ? item.parola+': '+item.definizione : (item.aneddoto || item.proposta_regalo)}</div>`).join('');
+            
+            if(dati[tipo].length === 0) {
+                container.innerHTML = '<i>Nessun elemento inserito.</i>';
+                return;
+            }
+
+            container.innerHTML = '';
+            dati[tipo].forEach(item => {
+                let txt = '';
+                if (tipo === 'cruciverba') txt = `<b>${item.parola}</b>: ${item.definizione}`;
+                if (tipo === 'caricatura') txt = item.idea_dettagliata;
+                if (tipo === 'papiro') txt = item.aneddoto;
+                if (tipo === 'regalo') txt = item.proposta_regalo;
+
+                let extraBtn = (tipo === 'regalo') ? `<br><button class="vote-btn" onclick="votaRegalo(${item.id})">👍 Vota (${item.voti || 0})</button>` : '';
+                
+                let autoreText = item.autore === "Anonimo" ? "<b>Anonimo</b> ha scritto:" : `<b>${item.autore}</b> ha scritto:`;
+
+                container.innerHTML += `
+                    <div class="idea-card">
+                        <button class="btn-del" title="Elimina" onclick="elimina('${tipo}', ${item.id})">🗑️</button>
+                        ${autoreText}<br>${txt}
+                        ${extraBtn}
+                    </div>`;
+            });
         };
 
         window.generaCruciverbaMagico = function() {
@@ -805,7 +857,16 @@
                 htmlTable += '</tr>';
             }
             document.getElementById('crossword-container').innerHTML = htmlTable + '</table>';
-            document.getElementById('crossword-clues').innerHTML = `<div style="flex:1; text-align:left;"><h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">ORIZZONTALI</h4>${orizz.join('')}</div><div style="flex:1; text-align:left;"><h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">VERTICALI</h4>${verti.join('')}</div>`;
+            
+            document.getElementById('crossword-clues').innerHTML = `
+                <div style="flex:1; text-align:left;">
+                    <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">ORIZZONTALI</h4>
+                    ${orizz.join('')}
+                </div>
+                <div style="flex:1; text-align:left;">
+                    <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">VERTICALI</h4>
+                    ${verti.join('')}
+                </div>`;
         };
     </script>
 </body>
